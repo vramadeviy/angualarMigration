@@ -1,0 +1,184 @@
+<div class="tax-collection-deposit-wrapper">
+  <div class="tax-coolection-filter-container">
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <form #reportFilter="ngForm">
+          <fieldset>
+
+            <div class="row">
+              <div class="col-md-2 col-sm-2 col-xs-12 col-lg-2">
+                <div class="form-group">
+                  <label class="form-control-label">Tax Type
+                    <span class="text-danger font-weight-bold">*</span>
+                  </label>
+                  <!-- <ng-multiselect-dropdown #taxType (focus)="taxType.toggleDropdown($event)" tabIndex="1" [placeholder]="'Select Tax Type'" [(ngModel)]="taxCollectionPaymentModel['Tax_Type']"
+                    [data]="taxTypeList" [settings]="dropdownSettings" (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)" [ngModelOptions]="{standalone: true}"></ng-multiselect-dropdown> -->
+                  <select class="form-control" name="Tax_Type" #Tax_Type="ngModel" [(ngModel)]="taxCollectionPaymentModel['Tax_Type']" required>
+                    <option *ngFor="let object of taxTypeList" [value]="object.item_id" [selected]="ALL"> {{object.item_text}}</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-2 col-sm-2 col-xs-12 col-lg-2">
+                <div class="form-group">
+                  <label class="form-control-label">Payment Source</label>
+                  <ng-multiselect-dropdown #ngMultiselect (focus)="ngMultiselect.toggleDropdown($event)" tabIndex="2" [placeholder]="'Select Payment Source'"
+                    [(ngModel)]="taxCollectionPaymentModel['Payment_Source']" name="Payment_Source" [data]="paymentSourseList"
+                    [settings]="dropdownSettings" (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)" [ngModelOptions]="{standalone: true}"></ng-multiselect-dropdown>
+                </div>
+              </div>
+              <div class="col-md-2 col-sm-2 col-xs-12 col-lg-2">
+                <div class="form-group">
+                  <label class="form-control-label">Payment Method</label>
+                  <ng-multiselect-dropdown #paymentMethod (focus)="paymentMethod.toggleDropdown($event)" tabIndex="3" [placeholder]="'Select Payment Method'"
+                    [(ngModel)]="taxCollectionPaymentModel['Payment_Method']" [data]="paymentMethodList" [settings]="dropdownSettings"
+                    (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)" [ngModelOptions]="{standalone: true}"></ng-multiselect-dropdown>
+                  <!-- <select class="form-control" name="Payment_Method" #paymentMethod="ngModel" [(ngModel)]="taxCollectionPaymentModel['Payment_Method']">
+                      
+                      <option *ngFor="let object of paymentMethodList" [value]="object.item_id" [selected]="ALL"> {{object.item_text}}</option>
+                    </select> -->
+                </div>
+              </div>
+              <div class="col-md-2 col-sm-2 col-xs-12 col-lg-2">
+                <div class="form-group">
+                  <label class="form-control-label">Method Type</label>
+                  <ng-multiselect-dropdown #methodType (focus)="methodType.toggleDropdown($event)" tabIndex="4" [placeholder]="'Select Method Type'"
+                    [(ngModel)]="taxCollectionPaymentModel['Method_Type']" [data]="methodTypeList" [settings]="dropdownSettings"
+                    (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)" [ngModelOptions]="{standalone: true}"></ng-multiselect-dropdown>
+                  <!-- <select class="form-control" name="Method_Type" #Method_Type="ngModel" [(ngModel)]="taxCollectionPaymentModel['Method_Type']">
+                      <option *ngFor="let object of methodTypeList" [value]="object.item_id" [selected]="ALL"> {{object.item_text}}</option>
+                    </select> -->
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-md-5 col-sm-5 col-lg-5 col-xs-12">
+
+                <div class="row">
+                  <div class="col-md-6 col-sm-6 col-lg-6">
+                    <div class="transaction-date-wrapper pb-3">
+                      <mat-radio-button class="radio-button-group" (change)="selectedType('transaction_Date')" [value]="1" name="td" ngDefaultControl
+                        [(ngModel)]="tDate" [checked]="tDate === 1"> Deposit Date</mat-radio-button>
+
+                      <ngb-datepicker-popup [tabIndex]="5" [selectedDateKey]="datePickerNgModelKeys['transaction_date']" controlName="transaction_date"
+                        [disabled]="taxCollectionPaymentModel['Deposit_Date']=='N'" [required]="true" (clear)="clearNgModelValue()"
+                        (notify)="onSelectNotify($event,'transaction_date')"></ngb-datepicker-popup>
+                    </div>
+                    <div class="credit-date-wrapper">
+                      <mat-radio-button class="radio-button-group" (change)="selectedType('credit_date')" name="td" ngDefaultControl [(ngModel)]="creditDate"
+                        [value]="2">Credit Date</mat-radio-button>
+                      <ngb-datepicker-popup [tabIndex]="6" [selectedDateKey]="datePickerNgModelKeys['credit_date']" controlName="credit_date" [required]="true"
+                        [disabled]="taxCollectionPaymentModel['Deposit_Date']=='Y'" (clear)="clearNgModelValue()" (notify)="onSelectNotify($event,'credit_date')"></ngb-datepicker-popup>
+                    </div>
+                  </div>
+                  <div class="col-md-6 col-sm-6 col-lg-6 pl-0">
+                    <div class="form-group">
+                      <label class="form-control-label">Batch No.</label>
+                      <input type="text" class="form-control" name="Batch_No" [(ngModel)]="taxCollectionPaymentModel['Batch_No']" #Batch_No="ngModel" />
+                    </div>
+                    <div class="form-group" style="padding: 20px">
+                      <input class="form-check-input is-invalid" name="Payment_Date" type="checkbox" value="" [(ngModel)]="taxCollectionPaymentModel['Payment_Date']"
+                        #Payment_Date="ngModel" id="invalidCheck3">
+                      <label class="check-label" for="invalidCheck3">
+                        Show Payment Date/Times
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-5 col-sm-5 col-lg-5 col-xs-12">
+                <fieldset>
+                  <legend class="legend-border">Amounts</legend>
+                  <div class="row">
+                    <div class="col-md-6 col-sm-6 col-lg-6 col-xs-12" *ngFor="let entry of amountOptions; let idx = index">
+                      <mat-radio-button class="radio-button-group" (change)="selectedAmountType(entry.id)" selectedAmountType [checked]="(idx === 0)"
+                        [value]="entry.id">{{entry.description}}</mat-radio-button>
+
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-lg-6 col-xs-12">
+                      <div class="flex-layout">
+                        <label class="form-control-lable">From Amount</label>
+                        <div class="form-field">
+                          <input type="text" class="form-control" name="From_Amount" #From_Amount="ngModel" [(ngModel)]="taxCollectionPaymentModel['From_Amount']"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-md-6 col-sm-6 col-lg-6 col-xs-12">
+                      <div class="flex-layout">
+                        <label class="form-control-lable">To Amount</label>
+                        <div class="form-field">
+                          <input type="text" class="form-control" name="To_Amount" #To_Amount="ngModel" [(ngModel)]="taxCollectionPaymentModel['To_Amount']"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </fieldset>
+              </div>
+              <div class="col-md-2 col-lg-2 col-sm-2 col-xs-12 d-inline-flex align-self-end">
+                <button [disabled]="reportFilter.invalid || !(taxCollectionPaymentModel.Report_Date)" class="btn btn-primary w-100p p-05" (click)="getTransactionRegisterReport(taxCollectionPaymentModel,reportFilter)">View Report</button>
+              </div>
+            </div>
+          </fieldset>
+        </form>
+        <fieldset class="tax-collection-fiels-set">
+          <div class="field-title font-weight-bold"><u>Add Comment to Payment:</u></div>
+          <!-- <form #reportFilter="ngForm"> -->
+            <div class="row">
+              <div class="col-md-2 col-sm-2 col-lg-2">
+                <div class="form-group">
+                  <label class="form-control-label">Roll Year</label>
+                  <input type="text" class="form-control" name="rollYear" #rollYear="ngModel" [(ngModel)]="taxCollectionPaymentModel['rollYear']"
+                  />
+  
+                </div>
+              </div>
+              <div class="col-md-2 col-sm-2 col-lg-2">
+                <div class="form-group">
+                  <label class="form-control-label">Tracer/Account No.</label>
+                  <input type="text" class="form-control" name="tracerNo" #tracerNo="ngModel" [(ngModel)]="taxCollectionPaymentModel['tracerNo']"
+                  />
+  
+                </div>
+              </div>
+              <div class="col-md-2 col-sm-2 col-lg-2">
+                <div class="form-group">
+                  <label class="form-control-label">Install No.</label>
+                  <select class="form-control" name="installNo" #installNo="ngModel" [(ngModel)]="taxCollectionPaymentModel['installNo']" >
+                    <option>select</option>
+  
+                    <option>1</option>
+                    <option value="2">2</option>
+  
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-5 col-sm-5 col-lg-5">
+                <div class="form-group">
+                  <label class="form-control-label">Comment</label>
+                  <textarea name="comment" class="form-control" rows="2" cols="30" #comment="ngModel" [(ngModel)]="taxCollectionPaymentModel['comment']" ></textarea>
+                </div>
+              </div>
+              <div class="col-md-1 col-sm-1 col-lg-1 d-inline-flex align-self-end">
+  
+                <button class="btn btn-primary w-100p p-05" [disabled]="reportFilter.invalid" (click)="paymentCommentPost(taxCollectionPaymentModel)">Save </button>
+              </div>
+            </div>
+          <!-- </form> -->
+        
+        </fieldset>
+      </div>
+    </div>
+  </div>
+
+  <div class="tax-collection-report-container">
+    <div class="report-details-wrapper" *ngIf="reportServer">
+      <ssrs-reportviewer [reportserver]="reportServer" [reporturl]="reportUrl" [showparameters]="false" [parameters]="parameters"
+        [language]="language" [width]="width" [height]="height" [toolbar]="toolbar">
+      </ssrs-reportviewer>
+    </div>
+    <div class="report-details-wrapper" *ngIf="reportHistoryURL">
+      <iframe style="width:100%;height:750px;" *ngIf="reportHistoryURL" [src]="reportHistoryURL"></iframe>
+    </div>
+  </div>

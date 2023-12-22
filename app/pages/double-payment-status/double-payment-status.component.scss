@@ -1,0 +1,115 @@
+// table.main {
+//     display: table;
+//     width: 100%;
+//     margin-bottom: 0 !important;
+//   }
+//   table.main > thead,
+//   table.main > tbody {
+//     float: left;
+//     width: 100%;
+//   }
+//   table.main > tbody {
+//     overflow: auto;
+//     height: 150px;
+//   }
+//   table tr {
+//     width: 100%;
+//     display: table;
+//     text-align: left;
+//   }
+ 
+//   table.main table tbody:nth-child(odd) {
+//     background: #CCC;
+//   }
+//   table.main table {
+//     width: 100%;
+//     border-collapse: collapse;
+//   }
+//   table.main table td,
+//   table.main table th {
+//     padding: 20px;
+//     border: 1px solid black;
+//     width: 100px;
+//   }
+
+
+//payment css
+table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+td, th { 
+    border: 1px solid #f3f3f3;
+    overflow: hidden;
+    padding: 0.75rem;
+    width: 160px;
+}
+
+.column-headers {
+    overflow: hidden;
+}
+
+.row-headers {
+    height: 81px;
+    overflow: hidden;
+    position: absolute;
+}
+
+.column-headers {
+    background: #3498db;
+    color: #fff;
+}
+
+.table-content {
+    height:500px;
+    overflow: scroll;
+}
+
+
+// vishal css
+
+
+// .table-wrapper{
+//     width: 100%;
+// }
+// .table-wrapper::after{
+//     content: '';
+//     display: table;
+//     clear: both;
+// }
+// table {
+//     border: 1px solid black;
+//     table-layout: fixed;
+//     width: 200px;
+// }
+
+// td, th { 
+//     border: 1px solid black;
+//     overflow: hidden;
+//     width: 200px;
+//     padding: 0.75rem;
+// }
+
+// .corner-header {
+//     float: left;
+// }
+
+// .column-headers {
+//     float: left;
+//     width: 400px;
+//     overflow: scroll;
+// }
+
+// .row-headers {
+//     float: left;
+//     height:500px;
+//     overflow: scroll;
+// }
+
+// .table-content {
+//     width: 400px;
+//     height:500px;
+//     float: left;
+//     overflow: scroll;
+// }

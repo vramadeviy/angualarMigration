@@ -1,0 +1,17 @@
+<!-- <ol class="breadcrumb align-content-center">
+  <li *ngIf="router.url != '/pages/dashboard'" class="breadcrumb-item"><a routerLink="/" (click)="closeSubMenus()"><i class="fa fa-home mr-2"></i>Home</a></li>
+  <li *ngFor="let breadcrumb of breadcrumbs; let i = index;" class="breadcrumb-item">
+    <a [hidden]="i == (breadcrumbs.length - 1)" [routerLink]="[breadcrumb.url]">{{breadcrumb.name}}</a>
+    <span [hidden]="i != (breadcrumbs.length - 1)">
+      <i *ngIf="router.url == '/pages/dashboard'" class="fa fa-home mr-2"></i>
+      <h4><b>{{breadcrumb.name}}</b></h4>
+    </span>
+  </li>
+</ol> -->
+
+<div class="breadcrumb" *ngIf="breadcrumbs && breadcrumbs.length">
+    <span *ngFor="let breadcrumb of breadcrumbs; let i = index;" class="breadcrumb-item" style="text-align:center;float:none">
+            <!-- <i *ngIf="router.url == '/pages/dashboard'" class="fa fa-home mr-2"></i> -->
+            <h4><b>{{breadcrumb.name}}</b></h4> 
+    </span>
+</div>

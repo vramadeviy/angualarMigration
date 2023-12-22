@@ -1,0 +1,135 @@
+$validation-color:#ef2222;
+$label-font:16px;
+$sub-header:18px;
+$underline: underline;
+
+.payment-correction-block{
+    fieldset {
+        display: block;
+        margin-inline-start: 10px;
+        margin-inline-end: 10px;
+        // padding-inline-before: 10px;
+        padding-inline-start:  1.75em;
+        padding-inline-end: 0.75em;
+        -webkit-margin-start: 2px;
+        -webkit-margin-end: 2px;
+        -webkit-padding-before: 0.35em;
+        -webkit-padding-start: 1.75em;
+        -webkit-padding-end: 1.75em;
+        -webkit-padding-after: 0.625em;
+         min-width: auto !important;
+        border-width: 2px;
+        border-style: groove;
+        border-color: threedface;
+        border-image: initial;
+        overflow: auto;
+        border: 1px solid #7C93A7; //#7C93A7;// #dad8d8;
+        padding-bottom: 10px;
+        .legend-border {
+            display: block !important;
+            -webkit-padding-start: 2px !important;
+            -webkit-padding-end: 2px !important;
+            border-width: initial !important;
+            border-style: none !important;
+            border-color: initial !important;
+            border-image: initial !important;
+            width: auto !important;
+            font-size: 1.2rem !important;
+        }
+    }
+}
+
+
+.payment-correction-filter-wrapper{
+    .alert-danger {
+        background-color: #f2dede !important;
+        border-color: #ebcccc !important;
+    }
+    .w-dynamic{
+        width: 60% !important;
+    }
+}
+
+
+.control-block-container{
+    .col-form-label{
+        font-size:$label-font;
+    }
+    .reistricted-field{
+        color: $validation-color;
+    }
+    &.payment-correction-button{
+        display: flex;
+        align-items: center;
+        margin-top: 14px;
+    }
+}
+
+.payment-correction-body-container{
+    .sub-header{
+        font-weight: 500;
+        font-size: $sub-header;
+        text-decoration: $underline;
+    }
+    .col-form-label{
+        font-weight: 500;
+    }
+    
+}
+
+.align-item {
+    display: flex;
+    align-items: center;
+}
+.tax-bill-detail{
+    .tax-detail-wrapper{
+        padding: 0;
+        .tax-block{
+            float: left;
+        }
+    }
+}
+.tax-detail-wrapper:after{
+    display: table;
+    clear: both;
+    content: '';
+}
+
+.payment-detail-table-container{
+    table{
+        thead{
+            th
+            {
+                background:darkslateblue;//#191970; // #32967e;//#fe9700;
+                color: #fff;
+                border: 1px solid #f3f3f3;
+            }
+        }
+        tbody{
+           tr td{
+            border: 1px solid #eceeef;
+           }
+            tr:nth-of-type(odd) {
+                background-color: #b7d7e8;
+            }
+            tr:nth-of-type(even) {
+                background-color: #ddeedd;
+            }
+        }
+    }
+}
+.payment-detail-form{
+    width: 100%;
+}
+.save-button{
+    color: darkslateblue;
+    font-weight: 500;;
+}
+.text-failed{
+    color: #ef2222 !important;
+}
+
+
+.text-right{
+    text-align: right;
+}

@@ -1,0 +1,200 @@
+<div *ngIf="userPrivilege.canViewJPL">
+  <div class="card-block p-0 jeopardy-letter-list-container">
+    <form #searchForm="ngForm">
+
+      <div class="card-block pt-0 pb-0">
+        <!-- <fieldset> -->
+          <!-- <legend class="legend-border mb-0">Search Criteria</legend> -->
+          <div class="row jeopardy-letter-list-filter-wrapper d-flex aligns-items-center justify-content-between">
+            <div class="form-group col-md-2 ol-sm-2 col-xs-12">
+              <label for="example-text-input" class="col-form-label form-control-label font-weight-bold label-dark"> Process Year
+                <span class="reistricted-field text-danger font-weight-bold">*</span>
+              </label>
+
+              <select class="form-control w-dynamic" aria-placeholder="select year" name="year" [(ngModel)]="search.year" (ngModelChange)="getGeoPardyLettersList()"
+                #year="ngModel" required>
+                <!-- <option [ngValue]="undefined" disabled selected>select year</option> -->
+                <option *ngFor="let year of APNYearList" [value]="year.key">{{year.label}}</option>
+              </select>
+
+            </div>
+
+            <div class="control-block-container action-button mr-4">
+              <!-- <button class="btn btn-primary w-100p p-05 mr-3" (click)="getGeoPardyLettersList()">Search</button> -->
+            </div>
+          </div>
+        <!-- </fieldset> -->
+      </div>
+
+    </form>
+
+    <div class="card-block report-history-detail pt-1 pb-0">
+
+      <div class="card-block pl-0 pt-0 pb-1">
+        <h5>Search Column Filter &nbsp;
+          <i class="fa fa-filter" style="color:#0073e6;"></i>
+        </h5>
+        <div class="row table-filter-wrapper">
+          <div class="col-md-2 col-sm-4 col-xs-12 ">
+            <ng-multiselect-dropdown #searchTableHeader [placeholder]="'Select column'" [data]="filterTableHeaderData" tabIndex="28"
+              [(ngModel)]="selectedtableHeader" [settings]="dropdownSingleSelectSettings" (onSelect)="onHeaderSelect($event)"></ng-multiselect-dropdown>
+          </div>
+          <div class="col-md-9 col-sm-8 col-xs-12 ">
+            <div class="row">
+              <input name="tax-bill-year" *ngIf="selectedtableHeader" (ngModelChange)="filterJeopardyList(searchKey)" [(ngModel)]="searchKey"
+                #searchkey="ngModel" class="form-control w-280p" required type="text" placeholder="">
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="total-parcel-seleced">
+        <span class="text-bold">Parcels selected:</span> {{totalSelectedCount}} out of {{jeoPardyLetterList.length}}
+      </div>
+      <div class="pane pane-table-preference">
+        <!-- <div class="pane-hScroll" style="width:100%">
+        <div class="pane-vHeaderScroll"> -->
+        <div class="column-headers" id="clscroll-column-headers" style="overflow-y:scroll; overflow-x:hidden">
+          <table>
+            <thead class="preference-table-header fixed-order">
+              <th style="width:100px">Select</th>
+              <th style="width:300px">
+                <!-- <i class="sorting-class fa" *ngIf="order =='parcel'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> -->
+                Parcel
+              </th>
+              <th style="width:300px">Name</th>
+              <th style="width:300px">Situs</th>
+              <th style="width:300px">Mailing Address</th>
+
+              <!-- <th style="width:100px">Action</th> -->
+            </thead>
+          </table>
+        </div>
+        <div class="table-content">
+          <table class="table-striped box table-bordered outer-table">
+            <tbody>
+              <tr *ngFor="let item of jeoPardyLetterList | multiPropFilter: searchKey: searchParams | paginate: { itemsPerPage: pageRecordLimit, currentPage: p} ; let i= index">
+                <td class="handle" style="width:100px">
+                  <input type="checkbox" [disabled]="!userPrivilege.canEditJPL" (change)="onChangeCanProcess(item)" class="form-control" [(ngModel)]="item.canProcess"
+                    name="i" />
+                </td>
+                <td class="handle" style="width:300px">
+                  {{item.parcel}}
+                </td>
+                <td class="handle" style="width:300px">
+                  {{item.assessedTo}}
+                </td>
+                <td class="handle" style="width:300px">
+                  <span>
+                    {{item.situsAddress1}}&nbsp;{{item.situsAddress2}}&nbsp;{{item.situsAddress3}}&nbsp;{{item.situsZip}} </span>
+                </td>
+                <td class="handle" style="width:300px">
+                  <!-- <input class="form-control" *ngIf="i==0" [(ngModel)]="item.situsAddress1"/> -->
+                  <span>
+                    {{item.mailAddress1}}&nbsp;{{item.mailAddress2}}&nbsp;{{item.mailAddress3}}&nbsp;{{item.mailZip}} </span>
+                </td>
+                <!-- <td class="handle" style="width:300px">
+                    {{item.modifiedDate}}
+                  </td> -->
+                <!-- <td class="handle" style="width:100px">
+                  <i class="fa fa-pencil" *ngIf="!item.isClicked"(click)="onRowEditClick(item)"></i>
+                  <button class="btn" *ngIf="!!item.isClicked">Save</button>
+                </td> -->
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- </div> -->
+      </div>
+
+      <div class="page-wise-pagination-contianer align-items-center mt-1 d-flex justify-content-between">
+        <div class="pagination-out-off p-10 text-align-center">
+          Results: {{start==null ? 1 : start}} - {{last == null ? pageRecordLimit : last}} of {{jeoPardyLetterList.length}}
+        </div>
+
+        <div class="pagination-ngx">
+          <div class="inner-pagintion-contianer">
+            <pagination-controls class="inner-paginetion-container" aria-label="Default pagination" directionLinks="true" (pageChange)="p=$event;pageChanged($event)"></pagination-controls>
+          </div>
+
+        </div>
+        <div class="limit-pagination-contianer d-flex align-items-center">
+          <span>Select Records Per Page</span>
+          <select [(ngModel)]="pageRecordLimit" (ngModelChange)="pageChanged(1)" class="form-control page-limit-dropdown w-100p">
+            <option *ngFor="let record of pageRecordLimitData" [ngValue]="record"> {{record}} </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="notification d-flex p-4 align-items-center justify-content-end text-success text-bold" *ngIf="notificationText" style="font-size:20x;">
+      {{notificationText}}
+    </div>
+    <div class="mt-1 d-flex align-items-center">
+      <select class="form-control w-200" aria-placeholder="select Type" name="gentype" [disabled]="!userPrivilege.canEditJPL" [(ngModel)]="genType" #gentype="ngModel"
+        required>
+        <option [ngValue]="type.key" *ngFor="let type of jeopardyLettersTypes">{{type.label}}</option>
+      </select>
+      <button class="btn btn-primary w-100p p-05" [disabled]="!userPrivilege.canEditJPL" (click)="generateJeopardyLettersList()">Generate</button>
+      &nbsp;&nbsp;
+      <button (click)="getJeopardyPreviewList()" [disabled]="!userPrivilege.canEditJPL" class="btn btn-primary w-100p p-05" data-toggle="modal"  data-target="#jeopardyPreviewModal">Preview</button>
+    </div>
+  </div>
+
+  <div class="modal fade" id="jeopardyPreviewModal" tabindex="-1" aria-labelledby="jeopardyPreviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog max-70">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="jeopardyPreviewModalLabel">Preview List</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <span class="total f-16 mb-5 d-block">Total records:{{jeoPardyPreviewList.length}}</span>
+          <div class="pane pane-table-preference">
+            <div class="column-headers" id="clscroll-column-headers" style="overflow-y:scroll; overflow-x:hidden">
+              <table>
+                <thead class="preference-table-header fixed-order">
+                  <th style="width:300px">
+                    Parcel
+                  </th>
+                  <th style="width:300px">Name</th>
+                  <th style="width:300px">Situs</th>
+                  <th style="width:300px">Mailing Address</th>
+                </thead>
+              </table>
+            </div>
+            <div class="table-content">
+              <table class="table-striped box table-bordered outer-table">
+                <tbody>
+                  <tr *ngFor="let item of jeoPardyPreviewList; let i= index">
+                    <td class="handle" style="width:300px">
+                      {{item.parcel}}
+                    </td>
+                    <td class="handle" style="width:300px">
+                      {{item.assessedTo}}
+                    </td>
+                    <td class="handle" style="width:300px">
+                      <span>
+                        {{item.situsAddress1}}&nbsp;{{item.situsAddress2}}&nbsp;{{item.situsAddress3}}&nbsp;{{item.situsZip}} </span>
+                    </td>
+                    <td class="handle" style="width:300px">
+                      <span>
+                        {{item.mailAddress1}}&nbsp;{{item.mailAddress2}}&nbsp;{{item.mailAddress3}}&nbsp;{{item.mailZip}} </span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="!userPrivilege.canViewJPL">
+  no access
+</div>

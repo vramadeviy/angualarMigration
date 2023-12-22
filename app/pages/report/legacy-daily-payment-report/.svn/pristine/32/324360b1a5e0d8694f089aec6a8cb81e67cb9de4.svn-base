@@ -1,0 +1,61 @@
+@import '../../../theme/styles/table';
+.legacy-report-detail-wrapper {
+  .pane-hScroll {
+    width: 77%;
+    .preference-table-header {
+      th {
+        padding: 5px;
+        height: auto;
+      }
+    }
+    .pane-vScroll {
+      overflow: auto;
+      height: 200px;
+      &::-webkit-scrollbar {
+        width: 9px;
+        height: 22px;
+      }
+      tr {
+        height: auto !important;
+        td {
+          padding: 5px !important;
+        }
+      }
+    }
+  }
+
+  .report-history-detail {
+    .pane-hScroll {
+      width: 77%;
+    }
+    .preference-table-header {
+      th {
+        padding: 5px;
+        height: auto;
+      }
+    }
+    .pane-vScroll {
+      overflow: auto;
+      height: 200px;
+      &::-webkit-scrollbar {
+        width: 9px;
+        height: 22px;
+      }
+      tr{
+        height: auto !important;
+        td {
+          padding: 5px !important;
+        }
+      } 
+    }
+  }
+  
+
+}
+
+.legacy-fixed-footer {
+  // position: fixed;
+  margin: 10px;
+  color: red;
+  bottom: 20px;
+}

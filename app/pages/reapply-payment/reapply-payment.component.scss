@@ -1,0 +1,57 @@
+.form-tracer-container{
+    .legend{
+        border: 1px solid #7C93A7;
+        padding: 10px;
+        position: relative;
+        z-index: 0;
+        .legend-border{
+            position: absolute;
+            top: -17px;
+            z-index: 10;
+            background: #e1e8ee;
+            width: auto !important;
+        }
+    }
+}
+.to-tracer-container{
+    margin-top: 10px;
+    .legend{
+        border: 1px solid #7C93A7;
+        padding: 10px;
+        position: relative;
+        z-index: 0;
+        .legend-border{
+            position: absolute;
+            top: -18px;
+            z-index: 10;
+            width: auto !important;
+            background: #e1e8ee;
+        }
+    }
+}
+.text-failed{
+    color: #ef2222 !important;
+}
+.payment-d-table-container,.tax_b-detail-table-container{
+    thead{
+        background: darkslateblue;
+        color: #fff;
+    }
+    tbody{
+        tr:nth-of-type(odd) {
+            background-color: #b7d7e8;
+        }
+        tr:nth-of-type(even) {
+            background-color: #ddeedd;
+        }
+        tr:last-child {
+            background-color:transparent;
+            border: transparent;
+        }
+    }
+}
+.total-control{
+    &.negative{
+        color: #ef2222;
+    }
+}

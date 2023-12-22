@@ -1,0 +1,793 @@
+<div class="row">
+
+  <div class="card-block pt-0">
+    <fieldset>
+      <legend class="legend-border">Search Criteria</legend>
+      <div class="row align-item">
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2" style="font-weight:bold;" *ngFor="let entry of entries; let idx = index">
+
+          <mat-radio-button class="radio-button-group" [checked]="(idx === 0)" (change)="onSelectionChange(entry,searchTableHeader)"
+            [value]="entry.id">{{entry.description}}</mat-radio-button>
+        </div>
+      </div>
+      <!--APN Tracer block allowNumberOnly  -->
+      <form class="col-md-12" style="padding:0" autocomplete="off" [formGroup]="apnSearchform">
+
+        <div class="row" *ngIf="selectedEntry.description==='APN & Tracer'">
+          <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+            <label for="example-text-input" class="col-form-label">APN</label>
+            <input tabindex="1" type="text" #focus autocomplete="off" id="APNNumber" class="form-control" formControlName="APNNumber"
+              [appFocus]="selectedEntry.description == 'APN & Tracer'" (input)="apnFormValidation($event,formValidation.apnNumber,'apn')"
+              maxlength="15" allowAlphNumericOnly>
+            <app-field-error-display [displayError]="isAPNValid" errorMsg="APN or Tracer No. is required">
+            </app-field-error-display>
+            <app-field-error-display [displayError]="isAPNLengthValid" errorMsg="APN must be minimum 5 characters">
+            </app-field-error-display>
+          </div>
+
+
+          <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+            <label for="example-search-input" class="col-form-label">Tracer No.</label>
+            <input type="text" tabindex="2" id="tracerNumber" class="form-control" formControlName="tracerNumber" #apnFocus
+              maxlength="8" (input)="apnFormValidation($event,formValidation.tracerNumber,'tracer')" numericOnly (keyup)="TracerEnter($event)">  
+            <div class="input-group">
+              <app-field-error-display [displayError]="isTracerLengthValid" errorMsg="Tracer No. must be 8 digits">
+              </app-field-error-display>
+            </div>
+          </div>
+          <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+            <label for="example-number-input" class="col-form-label">Install No.</label>
+            <div class="block">
+              <ng-multiselect-dropdown #ngMultiselect (focus)="ngMultiselect.toggleDropdown($event)" tabIndex="3" [placeholder]="'Select Install No.'"
+                [data]="installmentList" formControlName="selectedInstallmentItems" [settings]="dropdownSettings" (onSelect)="onItemSelect($event)"
+                (onSelectAll)="onSelectAll($event)"></ng-multiselect-dropdown>
+
+            </div>
+          </div>
+          <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+            <label for="example-text-input" class="col-form-label">Tax Roll Year</label>
+            <input tabindex="1" type="text" placeholder="YYYY"  id="rollYear" class="form-control" formControlName="rollYear" maxlength="4" allowAlphNumericOnly>
+          </div>
+          <div class="col-md-4 col-xs-12 col-lg-4 col-sm-4 button-align-right justify-content-end" style="margin-top:1.3em">
+            <div class="align-items-center" style="text-align:center">
+              <button tabindex="4" class="btn btn-primary w-100p p-05" (click)="getPaymentLookupSearchResult(selectedEntry.description)">Search</button>
+              <button tabindex="5" class="btn btn-outline-info w-100p p-05" (click)="resetForm(focus,searchTableHeader)">Reset</button>
+            </div>
+          </div>
+        </div>
+      </form>
+      <!--end APN Tracer block -->
+
+      <!--Transaction date block -->
+      <div class="row align-item transaction-option" *ngIf="selectedEntry.description==='Transaction Dates'">
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+          <div class="form-group" style="margin-bottom: 0rem;">
+            <label for="example-text-input" class="col-form-label">From Date
+              <span class="text-danger font-weight-bold">*</span>
+            </label>
+            <div class="input-group">
+              <ngb-datepicker-popup [tabIndex]="7" style="border-left: 5px solid #a94442;" [selectedDateKey]="transactionlNGModal['Payment_From']"
+                controlName="transactionToData" [maxDateKey]="startCalenderDate" (clear)="clearNgModelValue()" (notify)="onTransactionDateSelectNotify($event,'Payment_From')"></ngb-datepicker-popup>
+
+
+            </div>
+            <app-field-error-display [displayError]="(isDateFormatWrong)" errorMsg="The required date format is: MM/DD/YYYY">
+            </app-field-error-display>
+
+            <app-field-error-display [displayError]="(isMandatoryWrong && !transactionlNGModal['Payment_From'])" errorMsg="From Date is a required field">
+            </app-field-error-display>
+
+            <app-field-error-display [displayError]="isToDate" errorMsg="From Date cannot be a future date">
+            </app-field-error-display>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+
+          <div class="form-group" style="margin-bottom: 0rem;">
+            <label for="example-search-input" class="col-form-label">To Date</label>
+            <div class="input-group">
+              <ngb-datepicker-popup [tabIndex]="8" [selectedDateKey]="transactionlNGModal['Payment_To']" controlName="transactionFromData"
+                [minDateKey]="transactionlNGModal['Payment_From']" (clear)="clearNgModelValue()" [maxDateKey]="startCalenderDate"
+                (notify)="onTransactionDateSelectNotify($event,'Payment_To')"></ngb-datepicker-popup>
+            </div>
+            <app-field-error-display [displayError]="(isFromToDateFormatWrong)" errorMsg="The required date format is: MM/DD/YYYY">
+            </app-field-error-display>
+            <app-field-error-display [displayError]="isDateGreatherLessThanFromDate" errorMsg="From Date must be less than To Date">
+            </app-field-error-display>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+          <label for="example-number-input" class="col-form-label"> Payment Status</label>
+          <div class="block">
+            <ng-multiselect-dropdown tabIndex="9" #ngMultiselectTOne (focus)="ngMultiselectTOne.toggleDropdown($event)" [placeholder]="'Select Payment Status'"
+              [data]="paymentStatusOption" [(ngModel)]="transactionlNGModal['Payment_Status']" [settings]="dropdownSettings"
+              name="Payment_Status" (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)" [ngModelOptions]="{standalone: true}"></ng-multiselect-dropdown>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+          <label for="example-number-input" class="col-form-label"> Payment Source</label>
+          <div class="block">
+            <ng-multiselect-dropdown #ngMultiselectTTwo (focus)="ngMultiselectTTwo.toggleDropdown($event)" tabIndex="10" [placeholder]="'Select Payment Source'"
+              [data]="paymentSourceList" [(ngModel)]="transactionlNGModal['payment_Source']" [settings]="dropdownSettings"
+              (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)"></ng-multiselect-dropdown>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+          <label for="example-number-input" class="col-form-label"> Tax Type</label>
+          <div class="block">
+            <ng-multiselect-dropdown #ngMultiselectTThree (focus)="ngMultiselectTThree.toggleDropdown($event)" tabIndex="11" [placeholder]="'Select Tax Type'"
+              [data]="taxTypeList" [(ngModel)]="transactionlNGModal['t_type']" [settings]="dropdownSettings" (onSelect)="onItemSelect($event)"
+              (onSelectAll)="onSelectAll($event)"></ng-multiselect-dropdown>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2 button-align-right justify-content-end" style="margin-top:1.3em">
+          <div class="align-items-center" style="text-align:center">
+            <button tabIndex="12" class="btn btn-primary w-100p p-05" (click)="getPaymentLookupSearchResult(selectedEntry.description)">Search</button>
+            <button tabIndex="13" class="btn btn-outline-info w-100p p-05" (click)="resetSearchOption(selectedEntry.description,searchTableHeader)">Reset</button>
+          </div>
+        </div>
+      </div>
+      <!--end Transaction dates block -->
+
+      <!--Credit Date block -->
+      <div class="row align-item transaction-option" *ngIf="selectedEntry.description==='Credit Dates'">
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+          <div class="form-group" style="margin-bottom: 0rem;">
+            <label for="example-text-input" class="col-form-label">From Date
+              <span class="text-danger font-weight-bold">*</span>
+            </label>
+            <div class="input-group">
+
+              <ngb-datepicker-popup [tabIndex]="12" style="border-left: 5px solid #a94442;" [selectedDateKey]="creditNGModal['Payment_From']"
+                controlName="creditToData" [maxDateKey]="startCalenderDate" (clear)="clearNgModelValue()" (notify)="onCreditDateSelectNotify($event,'Payment_From')"></ngb-datepicker-popup>
+              <!-- [maxDateKey]="creditNGModal['Payment_From']"   
+              <input tabindex="14" [firstDayOfWeek]="7" class="form-control" autocomplete="off" [(ngModel)]="creditNGModal['Payment_From']" placeholder="mm/dd/yyyy" maxlength="10"
+                name="start-date" [displayMonths]="1" [navigation]="'select'" [maxDate]="startCalenderDate" ngbDatepicker #Payment_From="ngbDatepicker"
+                onkeyup="this.value=this.value.replace(/^(\d\d)(\d)$/g,'$1/$2').replace(/^(\d\d\/\d\d)(\d+)$/g,'$1/$2').replace(/[^\d\/]/g,'')"
+                style="border-left: 5px solid #a94442;" (click)="Payment_From.toggle()" >
+              <span class="input-group-addon" (click)="Payment_From.toggle()">
+                <i class="fa fa-calendar"></i>
+              </span> -->
+            </div>
+
+            <app-field-error-display [displayError]="(isDateFormatWrong)" errorMsg="The required date format is: MM/DD/YYYY">
+            </app-field-error-display>
+
+
+            <app-field-error-display [displayError]="(isMandatoryWrong && !creditNGModal['Payment_From'])" errorMsg="From Date is a required field">
+            </app-field-error-display>
+
+            <app-field-error-display [displayError]="isToDate" errorMsg="From Date cannot be a future date">
+            </app-field-error-display>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+
+          <div class="form-group" style="margin-bottom: 0rem;">
+            <label for="example-search-input" class="col-form-label">To Date</label>
+            <div class="input-group">
+              <ngb-datepicker-popup [tabIndex]="15" [selectedDateKey]="creditNGModal['Payment_To']" controlName="Payment_To" [minDateKey]="creditNGModal['Payment_From']"
+                (clear)="clearNgModelValue()" [maxDateKey]="startCalenderDate" (notify)="onCreditDateSelectNotify($event,'Payment_To')"></ngb-datepicker-popup>
+
+              <!-- <input class="form-control" [firstDayOfWeek]="7" tabindex="15" autocomplete="off" [(ngModel)]="creditNGModal['Payment_To']" placeholder="mm/dd/yyyy" name="end-date"
+                [displayMonths]="1" [navigation]="'select'" [minDate]="creditNGModal['Payment_From']" (focusout)="hideErrorMsgFunction()"
+                (click)="Payment_To.toggle()"
+                [maxDate]="startCalenderDate" ngbDatepicker #Payment_To="ngbDatepicker" limit-to="10" onkeyup="this.value=this.value.replace(/^(\d\d)(\d)$/g,'$1/$2').replace(/^(\d\d\/\d\d)(\d+)$/g,'$1/$2').replace(/[^\d\/]/g,'')">
+              <span class="input-group-addon" (click)="Payment_To.toggle()">
+                <i class="fa fa-calendar"></i>
+              </span>  -->
+            </div>
+            <app-field-error-display [displayError]="(isFromToDateFormatWrong)" errorMsg="The required date format is: MM/DD/YYYY">
+            </app-field-error-display>
+            <app-field-error-display [displayError]="isDateGreatherLessThanFromDate" errorMsg="From Date must be less than To Date">
+            </app-field-error-display>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+          <label for="example-number-input" class="col-form-label"> Payment Status</label>
+          <div class="block">
+            <ng-multiselect-dropdown #ngMultiselectCreditOne (focus)="ngMultiselectCreditOne.toggleDropdown($event)" tabIndex="16" [placeholder]="'Select Payment Status'"
+              [data]="paymentStatusOption" [(ngModel)]="creditNGModal['Payment_Status']" [settings]="dropdownSettings" name="Payment_Status"
+              (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)" [ngModelOptions]="{standalone: true}"></ng-multiselect-dropdown>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+          <label for="example-number-input" class="col-form-label"> Payment Source</label>
+          <div class="block">
+            <ng-multiselect-dropdown #ngMultiselectCreditTwo (focus)="ngMultiselectCreditTwo.toggleDropdown($event)" tabIndex="17" [placeholder]="'Select Payment Source'"
+              [data]="paymentSourceList" [(ngModel)]="creditNGModal['payment_Source']" [settings]="dropdownSettings" (onSelect)="onItemSelect($event)"
+              (onSelectAll)="onSelectAll($event)"></ng-multiselect-dropdown>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+          <label for="example-number-input" class="col-form-label">Tax Type</label>
+          <div class="block">
+            <ng-multiselect-dropdown #ngMultiselectCreditThree (focus)="ngMultiselectCreditThree.toggleDropdown($event)" tabIndex="18"
+              [placeholder]="'Select Tax Type'" [data]="taxTypeList" [(ngModel)]="creditNGModal['t_type']" [settings]="dropdownSettings"
+              (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)"></ng-multiselect-dropdown>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2 button-align-right justify-content-end" style="margin-top:1.3em">
+          <div class="align-items-center" style="text-align:center">
+            <button class="btn btn-primary w-100p p-05" tabindex="19" (click)="getPaymentLookupSearchResult(selectedEntry.description)">Search</button>
+            <button tabindex="20" class="btn btn-outline-info w-100p p-05" (click)="resetSearchOption(selectedEntry.description,searchTableHeader)">Reset</button>
+          </div>
+        </div>
+      </div>
+      <!--end Credit Dates block -->
+
+      <!--Deposit Date block -->
+      <div class="row align-item transaction-option" *ngIf="selectedEntry.description==='Deposit Dates'">
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+          <div class="form-group" style="margin-bottom: 0rem;">
+            <label for="example-text-input" class="col-form-label">From Date
+              <span class="text-danger font-weight-bold">*</span>
+            </label>
+            <div class="input-group">
+
+              <ngb-datepicker-popup [tabIndex]="21" style="border-left: 5px solid #a94442;" [selectedDateKey]="depositNGModal['Payment_From']"
+                controlName="Payment_From" [maxDateKey]="startCalenderDate" (clear)="clearNgModelValue()" (notify)="onDepositDateSelectNotify($event,'Payment_From')"></ngb-datepicker-popup>
+              <!-- <input tabindex="21" class="form-control" autocomplete="off" [(ngModel)]="depositNGModal['Payment_From']" placeholder="mm/dd/yyyy" maxlength="10"
+                name="start-date" [displayMonths]="1" [navigation]="'select'" [maxDate]="startCalenderDate" [firstDayOfWeek]="7" ngbDatepicker #Payment_From="ngbDatepicker"
+                onkeyup="this.value=this.value.replace(/^(\d\d)(\d)$/g,'$1/$2').replace(/^(\d\d\/\d\d)(\d+)$/g,'$1/$2').replace(/[^\d\/]/g,'')"
+                style="border-left: 5px solid #a94442;" (click)="Payment_From.toggle()">
+              <span class="input-group-addon" (click)="Payment_From.toggle()">
+                <i class="fa fa-calendar"></i>
+              </span> -->
+            </div>
+            <!--	<app-field-error-display [displayError]="isTransactionValidCheck" errorMsg="Transaction Date From is required">
+              </app-field-error-display> 
+	-->
+            <app-field-error-display [displayError]="(isDateFormatWrong)" errorMsg="The required date format is: MM/DD/YYYY">
+            </app-field-error-display>
+
+
+            <app-field-error-display [displayError]="(isMandatoryWrong && !depositNGModal['Payment_From'])" errorMsg="From Date is a required field">
+            </app-field-error-display>
+
+            <app-field-error-display [displayError]="isToDate" errorMsg="From Date cannot be a future date">
+            </app-field-error-display>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+
+          <div class="form-group" style="margin-bottom: 0rem;">
+            <label for="example-search-input" class="col-form-label">To Date</label>
+            <div class="input-group">
+              <ngb-datepicker-popup [tabIndex]="22" [selectedDateKey]="depositNGModal['Payment_To']" controlName="Payment_To" [minDateKey]="depositNGModal['Payment_From']"
+                (clear)="clearNgModelValue()" (notify)="onDepositDateSelectNotify($event,'Payment_To')"></ngb-datepicker-popup>
+              <!-- <input tabindex="22" class="form-control" autocomplete="off" [(ngModel)]="depositNGModal['Payment_To']" [firstDayOfWeek]="7" placeholder="mm/dd/yyyy" name="end-date"
+                [displayMonths]="1" [navigation]="'select'" [minDate]="depositNGModal['Payment_From']" (focusout)="hideErrorMsgFunction()"
+                (click)="Payment_To.toggle()"
+                [maxDate]="startCalenderDate" ngbDatepicker #Payment_To="ngbDatepicker" limit-to="10" onkeyup="this.value=this.value.replace(/^(\d\d)(\d)$/g,'$1/$2').replace(/^(\d\d\/\d\d)(\d+)$/g,'$1/$2').replace(/[^\d\/]/g,'')">
+              <span class="input-group-addon" (click)="Payment_To.toggle()">
+                <i class="fa fa-calendar"></i>
+              </span>  -->
+            </div>
+            <app-field-error-display [displayError]="(isFromToDateFormatWrong)" errorMsg="The required date format is: MM/DD/YYYY">
+            </app-field-error-display>
+            <app-field-error-display [displayError]="isDateGreatherLessThanFromDate" errorMsg="From Date must be less than To Date">
+            </app-field-error-display>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+          <label for="example-number-input" class="col-form-label"> Payment Status</label>
+          <div class="block">
+            <ng-multiselect-dropdown #ngMultiselectDepositOne (focus)="ngMultiselectDepositOne.toggleDropdown($event)" tabIndex="23"
+              [placeholder]="'Select Payment Status'" [data]="paymentStatusOption" [(ngModel)]="depositNGModal['Payment_Status']"
+              [settings]="dropdownSettings" name="Payment_Status" (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)"
+              [ngModelOptions]="{standalone: true}"></ng-multiselect-dropdown>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+          <label for="example-number-input" class="col-form-label"> Payment Source</label>
+          <div class="block">
+            <ng-multiselect-dropdown #ngMultiselectDepositTwo (focus)="ngMultiselectDepositTwo.toggleDropdown($event)" tabIndex="24"
+              [placeholder]="'Select Payment Source'" [data]="paymentSourceList" [(ngModel)]="depositNGModal['payment_Source']"
+              [settings]="dropdownSettings" (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)"></ng-multiselect-dropdown>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2">
+          <label for="example-number-input" class="col-form-label"> Tax Type</label>
+          <div class="block">
+            <ng-multiselect-dropdown #ngMultiselectDepositThree (focus)="ngMultiselectDepositThree.toggleDropdown($event)" tabIndex="25"
+              [placeholder]="'Select Tax Type'" [data]="taxTypeList" [(ngModel)]="depositNGModal['t_type']" [settings]="dropdownSettings"
+              (onSelect)="onItemSelect($event)" (onSelectAll)="onSelectAll($event)"></ng-multiselect-dropdown>
+          </div>
+        </div>
+        <div class="col-md-2 col-sm-3 col-xs-12 col-lg-2 button-align-right justify-content-end" style="margin-top:1.3em">
+          <div class="align-items-center" style="text-align:center">
+            <button tabIndex="26" class="btn btn-primary w-100p p-05" (click)="getPaymentLookupSearchResult(selectedEntry.description)">Search</button>
+            <button tabIndex="27" class="btn btn-outline-info w-100p p-05" (click)="resetSearchOption(selectedEntry.description,searchTableHeader)">Reset</button>
+          </div>
+        </div>
+      </div>
+      <!--end of Deposit Dates block -->
+
+    </fieldset>
+
+  </div>
+</div>
+
+
+<div class="isFilterLimit-container" *ngIf="isFilterLimit">{{this.item2}} </div>
+<!-- No results found. Please refine your search criteria and try again.  #dde8f1; #CFE1F1; -->
+
+
+<div class="card-block card border-0 box-shadow" [hidden]="totalLength==0" style="background-color:#e1e8ee;   border: 1px solid #7C93A7 !important;">
+  <!--  #fcfce8;-->
+  <div class="card-block pl-0 pt-0">
+    <h5>Search Column Filter &nbsp;
+      <i class="fa fa-filter" style="color:#0073e6;"></i>
+    </h5>
+    <div class="row table-filter-wrapper">
+      <div class="col-md-2 col-sm-4 col-xs-12 ">
+        <ng-multiselect-dropdown #searchTableHeader [placeholder]="'Select column'" [data]="filterTableHeaderData" tabIndex="28"
+          [(ngModel)]="selectedtableHeader" [settings]="dropdownSingleSelectSettings" (onSelect)="onHeaderSelect($event)"></ng-multiselect-dropdown>
+      </div>
+      <div class="col-md-9 col-sm-8 col-xs-12 ">
+        <div class="row">
+
+          <div class="col-md-2 col-sm-4 col-xs-12 p-0" *ngIf="(selectedHeaderItem=='transactionDate' || selectedHeaderItem=='creditDate' || selectedHeaderItem=='createdDate' || selectedHeaderItem=='depositDate') && selectedtableHeader!=''">
+
+            <div class="input-group">
+              <input class="form-control" (click)="filter_date.toggle();" [ngModel]="dt" placeholder="mm/dd/yyyy" name="filter_date" (ngModelChange)="filterByDate($event,selectedHeaderItem)"
+                [firstDayOfWeek]="7" ngbDatepicker #filter_date="ngbDatepicker" [readonly]="false">
+              <span class="input-group-addon" (click)="filter_date.toggle()">
+                <i class="fa fa-calendar"></i>
+              </span>
+            </div>
+          </div>
+          <div class="col-md-2 col-sm-4 col-xs-12 p-0" *ngIf="(selectedHeaderItem=='installNo' || selectedHeaderItem=='taxAmountPaid' || selectedHeaderItem=='interestAmount' ||selectedHeaderItem=='totalAmount'|| selectedHeaderItem=='penaltyAmount' || selectedHeaderItem=='returnCheckFee' || selectedHeaderItem=='paymentStatus' || selectedHeaderItem=='costAmount'  || selectedHeaderItem=='paymentSource' || selectedHeaderItem=='taxType'  || selectedHeaderItem=='paymentMethod' || selectedHeaderItem=='batchAgencyName' || selectedHeaderItem=='methodType' || selectedHeaderItem=='supplementalType' ) && selectedtableHeader!=''">
+
+
+            <input name="total-Amount" *ngIf="selectedHeaderItem=='totalAmount' || selectedHeaderItem=='interestAmount' ||selectedHeaderItem=='taxAmountPaid' || selectedHeaderItem=='penaltyAmount' || selectedHeaderItem=='costAmount' || selectedHeaderItem=='returnCheckFee'"
+              [(ngModel)]="totalAmountKey" #totalAmount="ngModel" class="form-control" required type="text" placeholder="Enter Amount">
+            <ng-multiselect-dropdown #installNumber tabIndex="29" *ngIf="selectedHeaderItem=='installNo'" [placeholder]="'Select Install No.'"
+              [data]="installmentList" [(ngModel)]="searchInstallmentSearchKey" [settings]="dropdownSingleSelectSettings" (onSelect)="onItemSelect($event)"></ng-multiselect-dropdown>
+            <ng-multiselect-dropdown #paymentSatus tabIndex="30" *ngIf="selectedHeaderItem=='paymentStatus'" [placeholder]="'Select Status'"
+              [data]="paymentStatusOption" [(ngModel)]="paymentStatusSearchKey" [settings]="dropdownSingleSelectSettings" (onSelect)="onItemSelect($event)"></ng-multiselect-dropdown>
+            <!-- <ng-multiselect-dropdown *ngIf="selectedHeaderItem=='reason'" [placeholder]="'Select Correction'" [data]="reasonData" [(ngModel)]="paymentReasonSearchKey"
+              [settings]="dropdownSingleSelectSettings" (onSelect)="onItemSelect($event)"></ng-multiselect-dropdown> -->
+            <ng-multiselect-dropdown #sourseList tabIndex="31" *ngIf="selectedHeaderItem=='paymentSource'" [placeholder]="'Select Source'"
+              [data]="paymentSourceList" [(ngModel)]="paymentSourceSearchKey" [settings]="dropdownSingleSelectSettings" (onSelect)="onItemSelect($event)"></ng-multiselect-dropdown>
+            <ng-multiselect-dropdown #taxType tabIndex="32" *ngIf="selectedHeaderItem=='taxType'" [placeholder]="'Select Tax Type'" [data]="taxTypeList"
+              [(ngModel)]="paymentTaxTypeSearchKey" [settings]="dropdownSingleSelectSettings" (onSelect)="onItemSelect($event)"></ng-multiselect-dropdown>
+
+            <ng-multiselect-dropdown #paymentMethod tabIndex="33" *ngIf="selectedHeaderItem=='paymentMethod'" [placeholder]="'Select Method'"
+              [data]="paymentMethodData" [(ngModel)]="paymentMethodSearchKey" [settings]="dropdownSingleSelectSettings" (onSelect)="onItemSelect($event)"></ng-multiselect-dropdown>
+
+            <ng-multiselect-dropdown #methodType tabIndex="33" *ngIf="selectedHeaderItem=='methodType'" [placeholder]="'Select Method'"
+              [data]="methodTypeDate" [(ngModel)]="methodTypeSearchKey" [settings]="dropdownSingleSelectSettings" (onSelect)="onItemSelect($event)"></ng-multiselect-dropdown>
+
+            <ng-multiselect-dropdown #supplementalType tabIndex="33" *ngIf="selectedHeaderItem=='supplementalType'" [placeholder]="'Supplemental Type'"
+              [data]="supplementalTypeDate" [(ngModel)]="supplementalTypeSearchKey" [settings]="dropdownSingleSelectSettings"
+              (onSelect)="onItemSelect($event)"></ng-multiselect-dropdown>
+            <ng-multiselect-dropdown #agencyName tabIndex="34" *ngIf="selectedHeaderItem=='batchAgencyName'" [placeholder]="'Select Batch Agency Name'"
+              [data]="batchAgencyList" [(ngModel)]="batchAgencySearchKey" [settings]="dropdownSingleSelectSettings" (onSelect)="onItemSelect($event)"></ng-multiselect-dropdown>
+
+          </div>
+          <div class="col-md-2 col-sm-4 col-xs-12" *ngIf="(selectedHeaderItem=='taxAmountPaid' ||  selectedHeaderItem=='taxBillFiscalYear'|| selectedHeaderItem=='ncrSequenceNo' || selectedHeaderItem=='penaltyAmount' || selectedHeaderItem=='totalAmount' || selectedHeaderItem=='createdBy'|| selectedHeaderItem =='batchNo' || selectedHeaderItem=='apn' || selectedHeaderItem=='tracerNo' || selectedHeaderItem=='tellerNo' || selectedHeaderItem=='reason' || selectedHeaderItem=='installNo' ||  selectedHeaderItem=='totalAmount' || selectedHeaderItem=='interestAmount'  || selectedHeaderItem=='paymentFiscalYear' || selectedHeaderItem=='checkNo' || selectedHeaderItem=='costAmount') && selectedtableHeader!=''">
+
+            <ng-multiselect-dropdown tabIndex="35" #filterSign *ngIf="selectedHeaderItem=='totalAmount' || selectedHeaderItem=='taxAmountPaid'|| selectedHeaderItem=='penaltyAmount' || selectedHeaderItem=='interestAmount' || selectedHeaderItem=='costAmount'"
+              [placeholder]="'Select Sign'" [data]="selectResultConditon" (onSelect)="filterTotalAmountData($event,totalAmountKey,'dropdown',selectedHeaderItem)"
+              [(ngModel)]="selectedSignKey" [settings]="dropdownSingleSelectSettings"></ng-multiselect-dropdown>
+            <input name="ncr-no" *ngIf="selectedHeaderItem=='ncrSequenceNo'" [(ngModel)]="ncrNoSearchKey" #ncrNumber="ngModel" class="form-control"
+              required type="text" placeholder="">
+            <input name="tax-bill-year" *ngIf="selectedHeaderItem=='taxBillFiscalYear'" [(ngModel)]="taxBillYearSearchKey" #taxBillYear="ngModel"
+              class="form-control" required type="text" placeholder="">
+
+            <input name="name-kr" *ngIf="selectedHeaderItem=='apn'" [(ngModel)]="apnKey" #nameKr="ngModel" class="form-control" required
+              type="text" placeholder="">
+            <input name="reason" *ngIf="selectedHeaderItem=='reason'" [(ngModel)]="paymentReasonSearchKey" #nameKr="ngModel" class="form-control"
+              required type="text" placeholder="">
+            <input name="updated-by" *ngIf="selectedHeaderItem=='createdBy'" [(ngModel)]="updatedByKey" #updatedby="ngModel" class="form-control"
+              required type="text" placeholder="">
+            <input name="paymentfiscalyear" *ngIf="selectedHeaderItem=='paymentFiscalYear'" [(ngModel)]="paymentfiscalyearKey" #paymentfiscalyear="ngModel"
+              class="form-control" required type="text" placeholder="">
+            <input name="batch-No" *ngIf="selectedHeaderItem=='batchNo'" [(ngModel)]="batchNoKey" #batchNo="ngModel" class="form-control"
+              required type="text" placeholder="">
+            <input name="check-No" *ngIf="selectedHeaderItem=='checkNo'" [(ngModel)]="checkhNoKey" #checkhNo="ngModel" class="form-control"
+              required type="text" placeholder="">
+            <input name="teller-No" *ngIf="selectedHeaderItem=='tellerNo'" [(ngModel)]="tellerNoKey" #tellerhNo="ngModel" class="form-control"
+              required type="text" placeholder="">
+            <input name="tracer-No" *ngIf="selectedHeaderItem=='tracerNo'" [(ngModel)]="tracerNoKey" #tracerNo="ngModel" class="form-control"
+              required type="text" placeholder=" ">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row-total-amount-wrapper">
+    <span class="float-left">
+      <h6>Rows Displayed : {{rowCount}}
+        <br>
+      </h6>
+    </span>
+  </div>
+
+
+  <div class="column-headers" id="clscroll-column-headers" style="overflow-y:scroll; overflow-x:hidden">
+    <table>
+      <thead>
+        <tr>
+
+          <th style="width:90px !important"></th>
+
+          <ng-container *ngFor="let header of paymentLookupHeaders">
+
+
+            <th *ngIf="header ==='transactionDate'" class='handle' (click)="setOrder('transactionDate')">
+              <i class="sorting-class fa" *ngIf="order =='transactionDate'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Transaction Date
+            </th>
+            <th *ngIf="header ==='creditDate'" class='handle' (click)="setOrder('creditDate')">
+              <i class="sorting-class fa" *ngIf="order =='creditDate'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Credit Date
+            </th>
+            <th *ngIf="header =='apn'" class='handle' (click)="setOrder('apn')" style="width:120px">
+              <i class="sorting-class fa" *ngIf="order =='apn'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> APN
+            </th>
+            <th *ngIf="header =='tracerNo'" class='handle' (click)="setOrder('tracerNo')">
+              <i class="sorting-class fa" *ngIf="order =='tracerNo'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Tracer No.
+            </th>
+            <th *ngIf="header ==='installNo'" class='handle' (click)="setOrder('installNo')" style="width:110px">
+              <i class="sorting-class fa" *ngIf="order =='installNo'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Install No.
+            </th>
+            <th *ngIf="header ==='paymentStatus'" class='handle' (click)="setOrder('paymentStatus')">
+              <i class="sorting-class fa" *ngIf="order =='paymentStatus'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Payment Status
+            </th>
+            <th *ngIf="header ==='reason'" class='handle' (click)="setOrder('reason')">
+              <i class="sorting-class fa" *ngIf="order =='reason'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Reason
+            </th>
+            <th *ngIf="header ==='taxAmountPaid'" class='handle' (click)="setOrder('taxAmountPaid')">
+              <i class="sorting-class fa" *ngIf="order =='taxAmountPaid'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Tax Amount
+            </th>
+            <th *ngIf="header ==='totalAmount'" class='handle' (click)="setOrder('totalAmount')">
+              <i class="sorting-class fa" *ngIf="order =='totalAmount'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Total Amount
+            </th>
+            <th *ngIf="header =='penaltyAmount'" class='handle' (click)="setOrder('penaltyAmount')">
+              <i class="sorting-class fa" *ngIf="order =='penaltyAmount'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Penalty Amount
+            </th>
+            <th *ngIf="header ==='interestAmount'" class='handle' (click)="setOrder('interestAmount')">
+              <i class="sorting-class fa" *ngIf="order =='interestAmount'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Interest Amount
+            </th>
+            <th *ngIf="header ==='costAmount'" class='handle' (click)="setOrder('costAmount')">
+              <i class="sorting-class fa" *ngIf="order =='costAmount'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Cost Amount
+            </th>
+            <!-- <th *ngIf="header ==='returnCheckFee'" class='handle' (click)="setOrder('returnCheckFee')">Returned Check Fee
+              <i class="sorting-class fa" *ngIf="order =='returnCheckFee'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th> -->
+
+            <th *ngIf="header ==='paymentFiscalYear'" class='handle' (click)="setOrder('paymentFiscalYear')">
+              <i class="sorting-class fa" *ngIf="order =='paymentFiscalYear'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Payment Fiscal Year
+            </th>
+            <th *ngIf="header =='taxBillFiscalYear'" class='handle' (click)="setOrder('taxBillFiscalYear')">
+              <i class="sorting-class fa" *ngIf="order =='taxBillFiscalYear'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Tax Bill Fiscal Year
+            </th>
+            <th *ngIf="header =='taxType'" class='handle' (click)="setOrder('taxType')">
+              <i class="sorting-class fa" *ngIf="order =='taxType'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Tax Type
+            </th>
+            <th *ngIf="header ==='batchAgencyName'" class='handle' (click)="setOrder('batchAgencyName')">
+              <i class="sorting-class fa" *ngIf="order =='batchAgencyName'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Batch Agency Name
+            </th>
+
+            <th *ngIf="header ==='batchNo'" class='handle' (click)="setOrder('batchNo')">
+              <i class="sorting-class fa" *ngIf="order =='batchNo'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Batch No.
+            </th>
+            <th *ngIf="header ==='tellerNo'" class='handle' (click)="setOrder('tellerNo')">
+              <i class="sorting-class fa" *ngIf="order =='tellerNo'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Teller No.
+            </th>
+            <th *ngIf="header ==='ncrSequenceNo'" class='handle' (click)="setOrder('ncrSequenceNo')">
+              <i class="sorting-class fa" *ngIf="order =='ncrSequenceNo'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Batch Sequence No.
+            </th>
+            <th *ngIf="header =='checkNo'" class='handle' (click)="setOrder('checkNo')">
+              <i class="sorting-class fa" *ngIf="order =='checkNo'" [ngClass]="{'fa-angle-up':reverse==true,'fa-angle-down':!reverse}"></i> Check No.
+            </th>
+            <th *ngIf="header =='paymentSource'" class='handle' (click)="setOrder('paymentSource')">
+              <i class="sorting-class fa" *ngIf="order =='paymentSource'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Payment Source
+            </th>
+            <th *ngIf="header =='paymentMethod'" class='handle' (click)="setOrder('paymentMethod')">
+              <i class="sorting-class fa" *ngIf="order =='paymentMethod'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Payment Method
+            </th>
+            <th *ngIf="header =='createdBy'" class='handle' (click)="setOrder('createdBy')">
+              <i class="sorting-class fa" *ngIf="order =='createdBy'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i> Created By
+
+            </th>
+            <th *ngIf="header =='createdDate'" class='handle' (click)="setOrder('createdDate')">
+              <i class="sorting-class fa" *ngIf="order =='createdDate'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>Created Date
+            </th>
+            <th *ngIf="header =='depositDate'" class='handle' (click)="setOrder('depositDate')">
+              <i class="sorting-class fa" *ngIf="order =='depositDate'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>Deposit Date
+            </th>
+
+            <th *ngIf="header =='methodType'" class='handle' (click)="setOrder('methodType')">
+              <i class="sorting-class fa" *ngIf="order =='methodType'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>Method Type
+            </th>
+            <th *ngIf="header =='supplementalType'" class='handle' (click)="setOrder('supplementalType')">
+              <i class="sorting-class fa" *ngIf="order =='supplementalType'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>Supplemental Type
+            </th>
+          </ng-container>
+        </tr>
+      </thead>
+
+    </table>
+  </div>
+
+  <!-- PaymentTotalFilterPipe:paymentTotalSearchKey:setTotalpenaltyAmt| -->
+  <div class="table-content" id="clscroll-content">
+    <table class="table-striped box table-bordered outer-table" *ngFor="let object of paymentSearchResults | orderBy: order:reverse:'case-insensitive'  | ApnSearchPipe : apnKey | TracerNumberSearchPipe : tracerNoKey | UpdatedBySearchPipe:updatedByKey | PaymentFiscalYearSearchPipe : paymentfiscalyearKey | BatchNoSearchPipe : batchNoKey |CheckNumberSearchPipe:checkhNoKey | TellerNumberSearchPipe:tellerNoKey |NCRNumberSearchPipe: ncrNoSearchKey | TaxBillYearSearchPipe:taxBillYearSearchKey |InstallmentSearchSearchPipe:searchInstallmentSearchKey |  PaymentStatusSearchPipe:paymentStatusSearchKey | PaymentReasonSearchPipe: paymentReasonSearchKey | PaymentSourceSearchPipe:paymentSourceSearchKey | PaymentTaxTypeSearchPipe:paymentTaxTypeSearchKey| PaymentMethodSearchPipe:paymentMethodSearchKey| SupplementalTypeSearchPipe:supplementalTypeSearchKey| BatchAgencySearchPipe:batchAgencySearchKey | MethodTypeSearchPipe:methodTypeSearchKey | PaymentTotalsPipe:setFilterdItems| paginate: { itemsPerPage: pageRecordLimit, currentPage: p }; let i = index">
+      <tr>
+
+
+        <td style="width:90px">
+
+
+
+          <a role="button" *ngIf="object.hasHistory===true" title="Payment History" data-toggle="collapse" data-parent="#accordion"
+            aria-expanded="true" aria-controls="collapseOne">
+
+            <ng-template #falsyTemplate>
+               <i class="fa fa-plus icon-control" (click)="toggleRow(i,object.billInstallmentId,object.paymentId,'expand')" aria-hidden="true" style="color:#3b4cab"></i>
+            </ng-template>
+            <i *ngIf="expanded===i; else falsyTemplate" (click)="toggleRow(i,object.billInstallmentId,object.paymentId,'hide')" class="fa fa-minus icon-control"
+              style="color:#3b4cab" aria-hidden="true"></i> 
+              <!-- <i class="fa fa-plus icon-control" (click)="toggleRow(i,object.billInstallmentId,'expand')" aria-hidden="true" style="color:#3b4cab"></i>
+            </ng-template>
+            <i *ngIf="expanded===i; else falsyTemplate" (click)="toggleRow(i,object.billInstallmentId,'hide')" class="fa fa-minus icon-control"
+              style="color:#3b4cab" aria-hidden="true"></i> -->
+              
+          </a>
+
+          <span (click)="routeToPaymentCorrection(object)" *ngIf="object.hasAccessToPayCorrection===true"
+            title="Edit">
+            <i class="fa fa-pencil icon-control" style="cursor:pointer;" aria-hidden="true">
+            </i>
+
+          </span>
+
+          <!-- to enable or disable the edit and reapply link to navigate,put the i class pencil inside(to enable) the span and uncomment the span same for the reapply too -->
+
+           <span routerLink="/reapplypayment" (click)="routeToReappyPayment(object)" *ngIf="object.hasAccessToReapply" title="Re-apply">
+            <i class="fa fa-reply icon-control" style="cursor:pointer;" aria-hidden="true"></i>    
+          </span>  
+          <!-- <i class="fa fa-reply icon-control" style="cursor:pointer;" aria-hidden="true"></i>  -->
+          
+                
+
+        </td>
+
+        <ng-container *ngFor="let header of paymentLookupHeaders">
+
+          <td *ngIf="header == 'transactionDate'">
+            <div *ngIf="checkDate(object.transactionDate);then showDate else showEmpty"></div>
+            <ng-template #showDate>
+              {{object.transactionDate | date: 'MM/dd/yyyy' }}
+            </ng-template>
+            <ng-template #showEmpty></ng-template>
+          </td>
+
+          <!-- <td *ngIf="header =='transactionDate'">{{object.transactionDate | date: 'MM/dd/yyyy' }}</td>
+          </ng-template>
+          <td *ngIf="header =='transactionDate'">{{object.transactionDate | date: 'MM/dd/yyyy' }}</td> -->
+          <!-- style="width:60px" -->
+          <td *ngIf="header =='creditDate'">
+            
+            <span *ngIf="object.creditDate.includes('0001-01-01')"></span>
+            <span *ngIf="!object.creditDate.includes('0001-01-01')"> {{object.creditDate | date: 'MM/dd/yyyy'}}
+              </span>
+            </td>
+          <td *ngIf="header =='apn'" style="width:120px">{{object.apn}}</td>
+          <td *ngIf="header =='tracerNo'">{{object.tracerNo}}</td>
+          <td *ngIf="header =='installNo'" class="right-justified" style="width:110px">{{object.installNo}} </td>
+          <td *ngIf="header =='paymentStatus'">{{object.paymentStatus }}</td>
+          <td *ngIf="header =='reason'">{{object.reason }}</td>
+          <td *ngIf="header =='taxAmountPaid'" class="right-justified">{{object.taxAmountPaid | number : '1.2-2'}}</td>
+          <td *ngIf="header =='totalAmount'" class="right-justified">{{object.totalAmount | number : '1.2-2'}}</td>
+          <td *ngIf="header =='penaltyAmount'" class="right-justified">{{object.penaltyAmount | number : '1.2-2'}}</td>
+          <td *ngIf="header =='interestAmount'" class="right-justified">{{object.interestAmount | number : '1.2-2'}}</td>
+          <td *ngIf="header =='costAmount'" class="right-justified">{{object.costAmount | number : '1.2-2'}}</td>
+          <td *ngIf="header =='paymentFiscalYear'" class="right-justified">
+            <span *ngIf="object.paymentFiscalYear > 0"> 
+              {{object.paymentFiscalYear}}/{{object.paymentFiscalYear+1}}
+             </span> 
+          </td>
+          <td *ngIf="header =='taxBillFiscalYear'" class="right-justified">
+              <span *ngIf="object.taxBillFiscalYear > 0"> 
+                  {{object.taxBillFiscalYear}}/{{object.taxBillFiscalYear+1}}
+                 </span>
+              <!-- <span *ngIf="object.taxBillFiscalYear.toString().startsWith('0')"> </span>
+              <span *ngIf="!object.taxBillFiscalYear.toString().startsWith('0')"> 
+            {{object.taxBillFiscalYear}}/{{object.taxBillFiscalYear+1}}
+          </span> -->
+          </td>
+          <td *ngIf="header =='taxType'">{{object.taxType}}</td>
+          <td *ngIf="header =='batchAgencyName'"> {{object.batchAgencyName}}</td>
+          <td *ngIf="header =='batchNo'" class="right-justified">
+            {{object.batchNo | number:'3.0' }}
+          </td>
+          <td *ngIf="header =='tellerNo'" class="right-justified">{{object.tellerNo}}</td>
+          <td *ngIf="header =='ncrSequenceNo'" class="right-justified">{{object.ncrSequenceNo}}</td>
+          <td *ngIf="header =='checkNo'" class="right-justified">{{object.checkNo}}</td>
+          <td *ngIf="header =='paymentSource'">{{object.paymentSource}}</td>
+          <td *ngIf="header =='paymentMethod'">{{object.paymentMethod}}</td>
+          <td *ngIf="header =='createdBy'">{{object.createdBy }}</td>
+          <td *ngIf="header =='createdDate'">{{object.createdDate | date: 'MM/dd/yyyy' }}</td>
+          <td *ngIf="header =='depositDate'">
+            <span *ngIf="object.depositDate.includes('0001')"></span>
+            <span *ngIf="!object.depositDate.includes('0001')"> {{object.depositDate | date: 'MM/dd/yyyy'}}
+              </span>
+          </td>
+          <td *ngIf="header =='methodType'">{{object.methodType}}</td>
+          <td *ngIf="header =='supplementalType'">{{object.supType}} </td>
+        </ng-container>
+
+      </tr>
+      <tr *ngIf="expanded===i" [ngClass]="{'accordian-panel':expanded===i}">
+        <td [colSpan]="paymentLookupHeaders.length+1" style="padding-right:0;">
+          <div class="table-responsive-history">
+            <table class="table table-bordered">
+              <thead class="bg-primary inneer-table-history" style="  background:#0065b1 !important;">
+                <tr>
+                  <th style="width:80px !important; visibility: hidden;"></th>
+                  <ng-container *ngFor="let header of paymentLookupHeaders">
+                    <th *ngIf="header =='transactionDate'">Transaction Date</th>
+                    <th *ngIf="header =='creditDate'">Credit Date</th>
+                    <th *ngIf="header =='apn'" style="width:120px">APN</th>
+                    <th *ngIf="header =='tracerNo'">Tracer No.</th>
+                    <th *ngIf="header =='installNo'" style="width:110px">Install No.</th>
+                    <th *ngIf="header =='paymentStatus'">Payment Status</th>
+                    <th *ngIf="header =='reason'">Reason</th>
+                    <th *ngIf="header =='taxAmountPaid'">Tax Amount</th>
+                    <th *ngIf="header =='totalAmount'">Total Amount</th>
+                    <th *ngIf="header =='penaltyAmount'">Penalty Amount</th>
+                    <th *ngIf="header =='interestAmount'">Interest Amount</th>
+                    <th *ngIf="header =='costAmount'">Cost Amount</th>
+                    <!-- <th *ngIf="header =='returnCheckFee'">Returned Check Fee</th>  -->
+                    <th *ngIf="header =='paymentFiscalYear'">Payment Fiscal Year</th>
+                    <th *ngIf="header =='taxBillFiscalYear'">Tax Bill Fiscal Year</th>
+                    <th *ngIf="header =='taxType'">Tax Type</th>
+                    <th *ngIf="header =='batchAgencyName'">Batch Agency Name</th>
+                    <th *ngIf="header =='batchNo'">Batch No.</th>
+                    <th *ngIf="header =='tellerNo'">Teller No.</th>
+                    <th *ngIf="header =='ncrSequenceNo'">Batch Sequence No.</th>
+                    <th *ngIf="header =='checkNo'">Check No.</th>
+                    <th *ngIf="header =='paymentSource'">Payment Source</th>
+                    <th *ngIf="header =='paymentMethod'">Payment Method</th>
+                    <th *ngIf="header =='createdBy'">Created By</th>
+                    <th *ngIf="header =='createdDate'">Created Date</th>
+                    <th *ngIf="header =='depositDate'">Deposit Date</th>
+                    <th *ngIf="header =='methodType'">Method Type</th>
+                    <th *ngIf="header =='supplementalType'">Supplemental Type</th>
+                  </ng-container>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let object1 of allItemsHistory">
+                  <th style="width:80px !important;visibility: hidden;"></th>
+                  <ng-container *ngFor="let header of paymentLookupHeaders">
+                    <td *ngIf="header == 'transactionDate'">
+                      <div *ngIf="checkDate(object1.transactionDate);then showDate else showEmpty"></div>
+                      <ng-template #showDate>
+                        {{object1.transactionDate | date: 'MM/dd/yyyy' }}
+                      </ng-template>
+                      <ng-template #showEmpty>
+
+                      </ng-template>
+                    </td>
+                    <td *ngIf="header =='creditDate'"> <span *ngIf="object1.creditDate.includes('0001-01-01')"></span>
+                      <span *ngIf="!object1.creditDate.includes('0001-01-01')"> {{object1.creditDate | date: 'MM/dd/yyyy'}}
+                        </span></td>
+                    <td *ngIf="header =='apn'" style="width:120px">{{object1.apn}}</td>
+                    <td *ngIf="header =='tracerNo'">{{object1.tracerNo}}</td>
+                    <td *ngIf="header =='installNo'" class="right-justified" style="width:110px">{{object1.installNo}} </td>
+                    <td *ngIf="header =='paymentStatus'">{{object1.paymentStatus }}</td>
+                    <td *ngIf="header =='reason'">{{object1.reason }}</td>
+                    <td *ngIf="header =='taxAmountPaid'" class="right-justified">{{object1.taxAmountPaid | number : '1.2-2'}}</td>
+                    <td *ngIf="header =='totalAmount'" class="right-justified">{{object1.totalAmount | number : '1.2-2'}}</td>
+                    <td *ngIf="header =='penaltyAmount'" class="right-justified">{{object1.penaltyAmount | number : '1.2-2'}}</td>
+                    <td *ngIf="header =='interestAmount'" class="right-justified">{{object1.interestAmount | number : '1.2-2'}}</td>
+                    <td *ngIf="header =='costAmount'" class="right-justified">{{object1.costAmount | number : '1.2-2'}}</td>
+                    <!-- <td *ngIf="header =='returnCheckFee'" class="right-justified">{{object1.returnCheckFee| number : '1.2-2'}}</td> -->
+                    <td *ngIf="header =='paymentFiscalYear'" class="right-justified">
+                        <span *ngIf="object1.paymentFiscalYear > 0"> 
+                            {{object1.paymentFiscalYear}}/{{object1.paymentFiscalYear+1}}
+                           </span>
+                        <!-- <span *ngIf="object1.paymentFiscalYear.toString().startsWith('0')"> </span>
+                        <span *ngIf="!object1.paymentFiscalYear.toString().startsWith('0')"> 
+                      {{object1.paymentFiscalYear}}/{{object1.paymentFiscalYear+1}}
+                    </span> -->
+                    </td>
+                    <td *ngIf="header =='taxBillFiscalYear'" class="right-justified">
+                        <span *ngIf="object1.taxBillFiscalYear > 0"> 
+                            {{object1.taxBillFiscalYear}}/{{object1.taxBillFiscalYear+1}}
+                           </span>
+                        <!-- <span *ngIf="object1.taxBillFiscalYear.toString().startsWith('0')"> </span>
+                        <span *ngIf="!object1.taxBillFiscalYear.toString().startsWith('0')"> 
+                      {{object1.taxBillFiscalYear}}/{{object1.taxBillFiscalYear+1}}
+                    </span> -->
+                    </td>
+                    <td *ngIf="header =='taxType'">{{object1.taxType}}</td>
+                    <td *ngIf="header =='batchAgencyName'">{{object1.batchAgencyName}}</td>
+                    <td *ngIf="header =='batchNo'" class="right-justified">
+                      {{object1.batchNo | number:'3.0' }}</td>
+                    <td *ngIf="header =='tellerNo'" class="right-justified">{{object1.tellerNo}}</td>
+                    <td *ngIf="header =='ncrSequenceNo'" class="right-justified">{{object1.ncrSequenceNo}}</td>
+                    <td *ngIf="header =='checkNo'" class="right-justified">{{object1.checkNo}}</td>
+                    <td *ngIf="header =='paymentSource'">{{object1.paymentSource}}</td>
+                    <td *ngIf="header =='paymentMethod'">{{object1.paymentMethod}}</td>
+                    <td *ngIf="header =='createdBy'">{{object1.createdBy }}</td>
+                    <td *ngIf="header =='createdDate'">{{object1.createdDate| date: 'MM/dd/yyyy'}}</td>
+                    <td *ngIf="header =='methodType'">{{object1.methodType}}</td>
+                    <td *ngIf="header =='supplementalType'">{{object1.supplementalType }}</td>
+                    <td *ngIf="header =='depositDate'"><span *ngIf="object1.depositDate.includes('0001')"></span>
+                      <span *ngIf="!object1.depositDate.includes('0001')"> {{object1.depositDate | date: 'MM/dd/yyyy'}}
+                        </span></td>
+                  </ng-container>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </td>
+      </tr>
+    </table>
+    <table class="table-striped box table-bordered outer-table">
+      <tr>
+        <td style="width:90px !important"></td>
+        <ng-container *ngFor="let header of paymentLookupHeaders">
+          <td *ngIf="header =='transactionDate'"></td>
+          <td *ngIf="header =='creditDate'"></td>
+          <td *ngIf="header =='apn'" style="width:120px"></td>
+          <td *ngIf="header =='tracerNo'"></td>
+          <td *ngIf="header =='installNo'" style="width:110px"></td>
+          <td *ngIf="header =='paymentStatus'"></td>
+          <td *ngIf="header =='reason'"></td>
+          <td *ngIf="header =='taxAmountPaid'" class="right-justified"> {{taxAmtPaid | currency:'USD':true:'1.2-2'}}</td>
+          <td *ngIf="header =='totalAmount'" class="right-justified"> {{taxAmtPaid + penaltyAmt + interestAmt + costAmt | currency:'USD':true:'1.2-2'}}</td>
+          <td *ngIf="header =='penaltyAmount'" class="right-justified"> {{penaltyAmt | currency:'USD':true:'1.2-2'}}</td>
+          <td *ngIf="header =='interestAmount'" class="right-justified"> {{interestAmt | currency:'USD':true:'1.2-2'}}</td>
+          <td *ngIf="header =='costAmount'" class="right-justified"> {{costAmt | currency:'USD':true:'1.2-2'}}</td>
+          <!-- <td *ngIf="header =='returnCheckFee'"></td> -->
+          <td *ngIf="header =='paymentFiscalYear'"></td>
+          <td *ngIf="header =='taxBillFiscalYear'"></td>
+          <td *ngIf="header =='taxType'"></td>
+          <td *ngIf="header =='batchAgencyName'"></td>
+          <td *ngIf="header =='batchNo'"></td>
+          <td *ngIf="header =='tellerNo'"></td>
+          <td *ngIf="header =='ncrSequenceNo'"></td>
+          <td *ngIf="header =='checkNo'"></td>
+          <td *ngIf="header =='paymentSource'"></td>
+          <td *ngIf="header =='paymentMethod'"></td>
+          <td *ngIf="header =='createdBy'"></td>
+          <td *ngIf="header =='createdDate'"></td>
+          <td *ngIf="header =='depositDate'"></td>
+          <td *ngIf="header =='methodType'"> </td>
+          <td *ngIf="header =='supplementalType'"> </td>
+        </ng-container>
+      </tr>
+    </table>
+  </div>
+  <div class="page-wise-pagination-contianer align-items-center">
+    <div class="inner-pagintion-contianer">
+      <pagination-controls class="inner-paginetion-container" aria-label="Default pagination" directionLinks="true" (pageChange)="p = $event"></pagination-controls>
+    </div>
+    <div class="limit-pagination-contianer">
+      <label>Select Record Per Page</label>
+      <select [(ngModel)]="pageRecordLimit" class="page-limit-dropdown">
+        <option *ngFor="let record of pageRecordLimitData" [ngValue]="record"> {{record}} </option>
+      </select>
+    </div>
+  </div>
+
+
+  <div class="table-responsive">
+    <div class="table-footer" style="justify-content: space-between;
+      display: flex; padding-top:15px;">
+      <div class="float-left">
+        <span (click)="downloadCSV($event)" class="download-wrapper">
+          <i class="fa fa-table" aria-hidden="true"></i> &nbsp; Export</span>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="card-block" *ngIf="totalLength==0">
+</div>
+<!-- <div class="loader" [hidden]="spinnerLoading"></div> -->

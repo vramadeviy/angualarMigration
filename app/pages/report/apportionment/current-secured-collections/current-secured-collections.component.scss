@@ -1,0 +1,46 @@
+@import '../../../../theme/styles/table';
+.filter-wrapper {
+  .flex-block {
+    display: flex;
+    justify-content: space-between;
+    padding: 0;
+    align-items: center;
+  }
+}
+.report-history-detail {
+    margin-top: 20px;
+  .pane-hScroll {
+    width: 77%;
+  }
+  .preference-table-header {
+    th {
+      padding: 5px;
+      height: auto;
+    }
+  }
+  .pane-vScroll {
+    overflow: auto;
+    height: 200px;
+    &::-webkit-scrollbar {
+      width: 9px;
+      height: 22px;
+    }
+    tr {
+      height: auto !important;
+      td {
+        padding: 5px !important;
+      }
+    }
+  }
+}
+.ssr-report-wrapper{
+  margin-top: 15px;
+  padding: 10px;
+}
+.save-current-collections{
+  padding: 10px;
+  font-weight: 500;
+  .form-check-label{
+    padding-left: 0px;
+  }
+}

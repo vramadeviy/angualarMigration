@@ -1,0 +1,45 @@
+<div class="current-secured-unpaid-main-wrapper">
+  <div class="report-history-wrapper">
+    <fieldset *ngIf="reportHistoryResponse && reportHistoryResponse.length;else noData">
+      <legend class="legend-border">Search Reports</legend>
+
+      <div class="report-history-detail">
+        <div class="pane pane-table-preference">
+          <div class="pane-hScroll">
+            <div class="pane-vHeaderScroll">
+              <table>
+                <thead class="preference-table-header fixed-order">
+                  <th style="width:100px">Created Date/Time</th>
+                  <th style="width:300px">Report Name</th>
+                </thead>
+              </table>
+            </div>
+            <div class="pane-vScroll pane-vScroll-static">
+              <table>
+                <tbody>
+                  <tr *ngFor="let report of reportHistoryResponse">
+                    <td class="handle" style="width:100px">
+                      {{report.reportDate}} {{report.reportTime}}
+                    </td>
+                    <td class="handle" style="width:300px">
+                      <a href="javaScript:void(0)" (click)="getSelectedReportDetail(report.reportURL)">
+                        {{report.reportName}}</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </fieldset>
+    <ng-template #noData>
+        <span class="error error-wrapper"> {{errorMsg}}</span>
+    </ng-template>
+  </div>
+  <div class="report-wrapper" *ngIf="reportHistoryURL">
+      <iframe style="width:100%;height:550px;" *ngIf="reportHistoryURL" [src]="reportHistoryURL"></iframe>
+  
+    </div>
+</div>

@@ -1,0 +1,85 @@
+<div class="report-main-wrapper">
+  <div class="filter-wrapper">
+    <form #filterReportForm="ngForm">
+      <div class="col-9 flex-block">
+        <div class="col-3">
+          <div class="form-group">
+            <label class="form-control-label">Roll Year</label>
+            <select [(ngModel)]="formModel.rollYear" name="rollYear" #rollYear="ngModel" class="form-control">
+              <option *ngFor="let year of rollYearList" [ngValue]="year">{{year.label}}</option>
+            </select>
+          </div>
+        </div>
+        <div class="action-wrapper col-2">
+          <button class="btn btn-primary w-100p p-05" [disabled]="filterReportForm.invalid" (click)="onSubmit()" tabindex="19">Search</button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+  <div class="report-history-wrapper">
+    <fieldset *ngIf="reportHistoryResponse && reportHistoryResponse.length;else noData">
+      <legend class="legend-border">Search Reports</legend>
+
+      <div class="report-history-detail">
+        <div class="pane pane-table-preference">
+          <div class="pane-hScroll">
+            
+            <div class="pane-vHeaderScroll">
+              <table>
+                <thead class="preference-table-header fixed-order">
+                  <th style="width:100px">Created Date/Time</th>
+                  <th style="width:300px">Report Name</th>
+                </thead>
+              </table>
+            </div>
+            <div class="pane-vScroll pane-vScroll-static">
+              <table>
+                <tbody>
+                  <tr *ngFor="let report of reportHistoryResponse">
+                    <td class="handle" style="width:100px">{{report.reportDate}} {{report.reportTime}}</td>
+                    <td class="handle" style="width:300px">
+                      <a href="javaScript:void(0)" (click)="getSelectedReportDetail(report)">{{report.newReportName}}</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </fieldset>
+    <ng-template #noData>
+      <span class="error error-wrapper"> {{errorMsg}}</span>
+    </ng-template>
+  </div>
+  <div class="ssr-report-wrapper" *ngIf="reportHistoryURL">
+    <iframe style="width:100%;height:550px;" *ngIf="reportHistoryURL" [src]="reportHistoryURL"></iframe>
+  </div>
+  <div class="save-current-collections" *ngIf="reportHistoryURL">
+    <div class="form-group form-check d-flex" *ngIf="!!certifyLabel || !!approval_Message">
+      <div class="approval-msg">
+        <div class="d-certifyLabel">
+            <input type="checkbox" class="form-check-input"  id="save_report" [disabled]="!canCertified"
+             [(ngModel)]="isTaxCertify" name="mapTotal"
+            />
+            <!-- [disabled]="isCertify" -->
+            <label class="form-check-label" for="save_report"> {{certifyLabel}}</label>&nbsp;&nbsp;&nbsp;
+        </div>
+        <div class="d-approval_Message">
+            <input type="checkbox" class="form-check-input"  id="save_report_approved" 
+              [(ngModel)]="isTaxApproved" 
+              [disabled]="!canApproved"
+              name="is_tax_approved" 
+            />
+            <!-- [disabled]="is_Approved" -->
+            <label class="form-check-label" for="save_report_approved"> {{approval_Message}}</label>&nbsp;&nbsp;&nbsp;
+        </div>
+      </div>
+      
+      <button class="btn btn-primary w-100p p-05" (click)="saveCertifyData()" [disabled]="!(canCertified || canApproved)">Save</button>
+      <!-- [disabled]="(isCertify && is_Approved)" -->
+    </div>
+  </div>
+</div>

@@ -1,0 +1,112 @@
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { AppCommons } from '../../shared/app.commons';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TransactionRegisterService } from '../transaction-register/transaction-register.service';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+
+import { environment } from 'environments/environment';
+
+@Component({
+  selector: 'app-daily-pending-payment-report',
+  templateUrl: './daily-pending-payment-report.component.html',
+  styleUrls: ['./daily-pending-payment-report.component.scss'],
+  providers:[AppCommons,TransactionRegisterService],
+  encapsulation: ViewEncapsulation.None
+})
+export class DailyPendingPaymentReportComponent implements OnInit {
+  //public reportServer:string; // report srver URL
+  reportServer;
+  public reportUrl:string;   // report URL
+  language: string = "en-us"; // language support for report
+  width: number = 100;   // width of report 
+  height: number = 100;   // height f report
+  showParameters = "true";
+  parameters;
+
+  dailyBatchReportFilter=[{
+    'transactionDate':''
+  }];
+  reportHistoryResponse;
+  reportHistoryURL:SafeUrl;
+  calendarMinDate;
+  startCalenderDate; // set Max date as current date
+  constructor(public appCommons:AppCommons,private transactionRegisterService:TransactionRegisterService,private domSanitizer:DomSanitizer) { }
+
+  ngOnInit() {
+    this.initializeDefaultValues();
+    this.getReportHistory();
+  }
+
+
+  initializeDefaultValues(){
+    this.startCalenderDate = { month: new Date().getMonth() + 1, day: new Date().getDate() - 1, year: new Date().getFullYear() };
+    this.calendarMinDate = { month: 7, day: 2, year: 2018 };
+    this.startCalenderDate=this.appCommons.getCurrentData();
+    this.dailyBatchReportFilter['transactionDate']=this.appCommons.setPreviousDefaultDate() 
+  }
+  public onSelectNotify(date, key) {
+     switch (key) {
+       case 'Transaction Date':
+      this.dailyBatchReportFilter['transactionDate'] = date;
+     break;
+   }
+  }
+
+   /** Get report history response */
+   getReportHistory() {
+    let postParams = {
+      "fromDate": "06/01/2019",
+      "toDate": "07/09/2050",
+      "reportName": "Daily_Pending_Payments_Report",
+      "reportType": "NTT",
+     "environment": environment.currentEnvironment
+    }
+    this.appCommons.showLoadingIocn();
+
+    this.transactionRegisterService.getReportHistory(postParams).subscribe(reportHistory => {
+      if (reportHistory.item2 === 'SUCCESS') {
+        this.reportHistoryResponse = reportHistory.item1;
+        this.appCommons.hideLoadingIcon();
+      }
+    }, (err: HttpErrorResponse) => {
+      this.appCommons.hideLoadingIcon();
+    })
+  }
+
+  /** click on table history table row */
+  getSelectedReportDetail(url) {
+    this.reportServer = '';
+    this.reportHistoryURL = this.domSanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+  getReport(dailyBatchReportFilter){
+    setTimeout(()=>{
+      this.getReportDetails(dailyBatchReportFilter);
+    })
+  }
+//Report Defination ID(6) 
+  //Transaction_Date 
+  /**
+   * get daily batch report using transaction date & ref_id
+   * @param dailyBatchReportFilter 
+   */
+  getReportDetails(dailyBatchReportFilter1){
+    this.reportHistoryURL='';
+    this.reportServer=null;
+    setTimeout(()=>{
+   // this.reportServer = 'http://us01dws033/ReportServer/Pages/ReportViewer.aspx'
+   // this.reportServer = 'http://ssrsp:80/ReportServer/Pages/ReportViewer.aspx'
+     // this.reportUrl = 'Development/TaxTools/Daily_Pending_Payments_Report';
+     // this.reportUrl = 'System Test/TaxTools/Daily_Pending_Payments_Report';
+     // this.reportUrl = 'User Acceptance/TaxTools/Daily_Pending_Payments_Report';
+     this.reportServer = environment.reportViewer;
+     this.reportUrl = environment.reportUrl+"Daily_Pending_Payments_Report";
+     // this.reportUrl = 'Prod/TaxTools/Daily_Pending_Payments_Report';
+      this.showParameters = "true";
+      this.parameters = {
+        "Transaction_Date": dailyBatchReportFilter1['transactionDate'],
+        "REPORT_DEFINITION_ID": 8
+      };
+    });
+  }
+}
+

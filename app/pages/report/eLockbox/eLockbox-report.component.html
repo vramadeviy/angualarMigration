@@ -1,0 +1,77 @@
+<div class="elockbox-exception-report-wrapper">
+  <div class="title">
+    <h4 class="text-center">{{title}}</h4>
+  </div>
+  <form #filterReportForm="ngForm">
+    <div class="search-wrapper">
+      <div class="from-date">
+        <label class="col-form-label">From Date</label>
+        <ngb-datepicker-popup [tabIndex]="1" [(selectedDateKey)]="searchModel['from_date']"  [maxDateKey]="startCalenderDate" required
+          (clear)="clearNgModelValue()" (notify)="onDateSelected($event, 'from_date')"></ngb-datepicker-popup>
+        <div class="error-msg form-alert" *ngIf="isFromDateValid">From Date must be less than the To date.
+        </div>
+      </div>
+      &nbsp;&nbsp;&nbsp;
+      <div class="to-date">
+        <label class="col-form-label">To Date</label>
+        <ngb-datepicker-popup #dbPicker [tabIndex]="2" [(selectedDateKey)]="searchModel['to_date']"  (clear)="clearNgModelValue()" required
+          (notify)="onDateSelected($event, 'to_date')"></ngb-datepicker-popup>
+        <div class="error-msg form-alert" *ngIf="isToDateValid">From Date must be less than or equal to To date
+        </div>
+      </div>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <div class="action-wrapper">
+        <button class="btn btn-primary w-100 p-05" [disabled]="filterReportForm.invalid || isFromDateValid || isToDateValid || !(searchModel['from_date'] || searchModel['to_date'])" (click)="onSubmit()"
+          tabindex="19">Search Reports</button>
+      </div>
+    </div>
+  </form>
+  <div class="search-detail-section">
+    <div class="report-history-wrapper" *ngIf="reportHistoryResponse &&reportHistoryResponse.length;else noData">
+      <fieldset>
+        <legend class="legend-border">Search Reports</legend>
+        <div class="report-history-detail">
+          <div class="pane pane-table-preference">
+            <div class="pane-hScroll">
+              <div class="pane-vHeaderScroll">
+                <table>
+                  <thead class="preference-table-header fixed-order">
+                    <th style="width:100px">Created Date/Time</th>
+                    <th style="width:300px">Report Name</th>
+                  </thead>
+                </table>
+              </div>
+              <div class="pane-vScroll pane-vScroll-static">
+                <table>
+                  <tbody>
+                    <tr *ngFor="let report of reportHistoryResponse">
+                      <td class="handle" style="width:100px">{{report.reportDate}} {{report.reportTime}}</td>
+                      <td class="handle" style="width:300px">
+                        <a href="javaScript:void(0)" (click)="getSelectedReportDetail(report.reportURL)">{{report.reportName}}</a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+    </div>
+    <ng-template #noData>
+        <span class="error text-danger font-weight-bold"> {{errorMsg}}</span>
+      </ng-template>
+  </div>
+
+  <div style="min-height: 195px;">
+    <div class="report-wrapper" *ngIf="reportServer">
+      <ssrs-reportviewer [reportserver]="reportServer" [reporturl]="reportUrl" [showparameters]="false" [parameters]="parameters"
+        [language]="language" [width]="width" [height]="height" [toolbar]="toolbar">
+      </ssrs-reportviewer>
+    </div>
+    <div class="report-wrapper" *ngIf="reportHistoryURL">
+      <iframe style="width:100%;height:550px;" *ngIf="reportHistoryURL" [src]="reportHistoryURL"></iframe>
+
+    </div>
+  </div>
+</div>

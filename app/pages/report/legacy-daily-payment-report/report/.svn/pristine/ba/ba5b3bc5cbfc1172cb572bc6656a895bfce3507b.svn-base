@@ -1,0 +1,47 @@
+@import '../../../theme/styles/table';
+.transaction-register-wrapper {
+  .report-history-detail {
+    .pane-hScroll {
+      width: 77%;
+    }
+    .preference-table-header {
+      th {
+        padding: 5px;
+        height: auto;
+      }
+    }
+    .pane-vScroll {
+      overflow: auto;
+      height: 200px;
+      tr{
+        height: auto !important;
+        td {
+          padding: 5px !important;
+        }
+      } 
+    }
+  }
+  .filter-container {
+    .flex-layout {
+      display: flex;
+      .form-field {
+        margin-left: 7px;
+      }
+    }
+  }
+  .report-wrapper {
+    margin-top: 20px;
+    height: 550px;
+  }
+}
+
+.align-center-item {
+  display: flex;
+  align-items: center;
+  padding-top: 17px;
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+}

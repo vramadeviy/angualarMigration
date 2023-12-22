@@ -1,0 +1,388 @@
+<div class="card-block p-0 payment-correction-block">
+  <form #searchForm="ngForm">
+    <div class="row payment-correction-filter-wrapper mb-3">
+
+      <div class="form-group col-md-2 ol-sm-2 col-xs-12">
+        <label for="example-text-input" class="col-form-label form-control-label"> Tax Roll Year
+          <span class="reistricted-field text-danger font-weight-bold">*</span>
+        </label>
+        <input type="text" class="form-control  w-dynamic" placeholder="" name="rollYear" [(ngModel)]="search.rollYear" pattern="[0-9]+"
+          #rollYear="ngModel" minlength="4" maxlength="4" required>
+        <!-- <select class="form-control w-dynamic"  name="rollYear"  [(ngModel)]="search.rollYear" #rollYear="ngModel" required>
+                    <option *ngFor="let item of rollYearList" [value]="item.item_id">{{item.item_text}}</option>
+                  </select> -->
+        <div class=" form-alert" *ngIf="(rollYear.touched) && rollYear.errors?.required">Roll Year is required
+        </div>
+        <div *ngIf="rollYear.errors?.pattern">
+          Enter Valid roll year
+        </div>
+        <div class=" form-alert" *ngIf="rollYear.errors?.minlength">
+          Invalid year,not lesss than 4, numeric
+        </div>
+
+      </div>
+      <div class="form-group  col-md-2 ol-sm-2 col-xs-12">
+        <label for="example-text-input" class="col-form-label form-control-label">Tracer No.
+          <span class="reistricted-field text-danger font-weight-bold">*</span>
+        </label>
+        <input type="text" class="form-control  w-dynamic" placeholder="" name="tracerNo" [(ngModel)]="search.tracerNo" #tracerNo="ngModel"
+          maxlength="8" required>
+        <div class=" form-alert" *ngIf="(tracerNo.touched) && tracerNo.errors?.required">{{infoAlertMessages.tracer_req}}</div>
+      </div>
+
+      <div class="form-group  col-md-2 ol-sm-2 col-xs-12">
+        <label for="example-text-input" class="col-form-label form-control-label">Install No.
+          <span class="reistricted-field text-danger font-weight-bold">*</span>
+        </label>
+        <!-- <ng-multiselect-dropdown tabIndex="3" #installNoId  name="rollYear"  (click)="installNoId.toggleDropdown($event)" #installNo="ngModel"
+              [placeholder]="''" [data]="installmentType" (onSelect)="selectedInstallment($event)"
+              [(ngModel)]="search.installNo" [settings]="dropdownSingleSelectSettings"></ng-multiselect-dropdown> -->
+        <select class="form-control w-dynamic" aria-placeholder="select Install No" name="installNo" [(ngModel)]="search.installNo"
+          #installNo="ngModel" required>
+          <option [ngValue]="undefined" disabled selected>select Install No</option>
+          <option *ngFor="let install of installmentType" [value]="install.item_id">{{install.item_text}}</option>
+        </select>
+        <!-- <input type="text" class="form-control" placeholder="" name="installNo"  [(ngModel)]="search.installNo" #installNo="ngModel" maxlength="1" required> -->
+        <div class=" form-alert" *ngIf="(installNo.touched) && installNo.errors?.required">Install No. is required</div>
+      </div>
+      <div class="col-3 control-block-container payment-correction-button">
+        <button class="btn btn-primary w-100p p-05" [disabled]="searchForm.invalid" (click)="getPaymentCorrectionSearchResult(search)">Search</button>
+      </div>
+    </div>
+  </form>
+  <div class="isFilterLimit-container" *ngIf="isPaymentCorrectionResponseResult">
+    <h5>{{paymentCorrectionResponse}}</h5>
+  </div>
+  <div class="payment-correction-body-container" *ngIf="(paymentCorrectionResponse && !isPaymentCorrectionResponseResult)">
+    <div class="payment-detail-block">
+      <fieldset>
+        <legend class="legend-border">Tax Bill & Payment Details</legend>
+        <div class="row align-item tax-bill-detail">
+          <div class="align-item col-md-12 p-10">
+            <span class="sub-header">Tax Bill Details</span>
+          </div>
+          <div class="col-md-12 col-sm-12 col-xs-12 body-section tax-detail-wrapper">
+            <div class="col-md-1 col-sm-3 col-xs-6 tax-block">
+              <label class="col-form-label">APN</label>
+              <div class="control-data" [innerHTML]="paymentCorrectionResponse.apn"></div>
+            </div>
+            <div class="col-md-1 col-sm-3 col-xs-6 tax-block">
+              <label class="col-form-label">Roll Year</label>
+              <div class="control-data" [innerHTML]="paymentCorrectionResponse.rollYear"></div>
+            </div>
+            <div class="col-md-1 col-sm-3 col-xs-6 tax-block">
+              <label class="col-form-label">Tracer No.</label>
+              <div class="control-data" [innerHTML]="paymentCorrectionResponse.tracerNo"></div>
+            </div>
+            <div class="col-md-1 col-sm-3 col-xs-6 tax-block">
+              <label class="col-form-label">Install No.</label>
+              <div class="control-data" [innerHTML]="paymentCorrectionResponse.installNo"></div>
+            </div>
+            <div class="col-md-2 col-sm-3 col-xs-6  tax-block">
+              <label class="col-form-label">Install Status</label>
+              <div class="control-data" [innerHTML]="paymentCorrectionResponse.installStatus"></div>
+            </div>
+            <div class="col-md-1 col-sm-3 col-xs-6 tax-block  text-right">
+              <label class="col-form-label">Bill Tax Amount</label>
+              <div class="control-data">${{paymentCorrectionResponse.billTaxAmount | number : '1.2-2'}}</div>
+            </div>
+            <div class="col-md-1 col-sm-3 col-xs-6 tax-block  text-right">
+              <label class="col-form-label">Penalty Amount</label>
+              <div class="control-data">${{paymentCorrectionResponse.billPenaltyAmount | number : '1.2-2'}}</div>
+            </div>
+
+            <div class="col-md-1 col-sm-3 col-xs-6 tax-block  text-right">
+              <label class="col-form-label">Interest Amount</label>
+              <div class="control-data">${{paymentCorrectionResponse.billInterestAmount | number : '1.2-2'}}</div>
+            </div>
+            <div class="col-md-1 col-sm-3 col-xs-6 tax-block  text-right">
+              <label class="col-form-label">Cost Amount</label>
+              <div class="control-data">${{paymentCorrectionResponse.billCostAmount | number : '1.2-2'}}</div>
+            </div>
+            <div class="col-md-1 col-sm-3 col-xs-6 tax-block  text-right">
+              <label class="col-form-label">Total Amount</label>
+              <div class="control-data">
+                $ {{calculateTotal(paymentCorrectionResponse.billTaxAmount,paymentCorrectionResponse.billPenaltyAmount,paymentCorrectionResponse.billInterestAmount,paymentCorrectionResponse.billCostAmount)
+                | number : '1.2-2'}}
+              </div>
+            </div>
+
+          </div>
+        </div>
+        <div class="row align-item tax-bill-detail pt-4">
+          <div class="align-item col-12 p-10 mb-2">
+            <span class="sub-header">Payment Details</span>
+          </div>
+          <form #paymentDetailForm="ngForm" class="payment-detail-form">
+            <div class="payment-detail-table-container table-responsive">
+              <table class="table">
+                <thead>
+                  <th>Transaction Date</th>
+                  <th>Credit Date</th>
+                  <th>Payment Status</th>
+                  <th>Payment Method/Number/Amount</th>
+                  <!-- <th>Install No.</th> -->
+                  <th style="width: 15%;">Batch Agency Name
+                    <i class="fa fa-info-circle" title="Changing the Batch Agency name will change the Agency name for the entire batch."></i>
+                  </th>
+                  <th>Tax Amount</th>
+                  <th>Penalty Amount</th>
+                  <th>Interest Amount</th>
+                  <th>Cost Amount</th>
+                  <!-- <th>ReturnedCheckFee</th> -->
+                  <th>Total Amount</th>
+                  <th style="    width: 7%;">Correction
+                    <i class="fa fa-info-circle cursor-pointer" title=help data-toggle="modal" data-target="#correction-reason"></i>
+                  </th>
+
+                </thead>
+                <tbody>
+                  <tr #paymentDetailObject *ngFor="let taxdetail of paymentCorrectionResponse.paymentCorrectionDetails;  let i = index" [attr.data-index]="i">
+                    <td>
+                        <span *ngIf="taxdetail.transactionDate.includes('0001-01-01')"></span>
+                        <span *ngIf="!taxdetail.transactionDate.includes('0001-01-01')"> 
+                          {{taxdetail.transactionDate | date: 'MM/dd/yyyy'}}
+                          </span>
+                    </td>
+                    <td>
+                        <span *ngIf="taxdetail.creditDate.includes('0001-01-01')"></span>
+                        <span *ngIf="!taxdetail.creditDate.includes('0001-01-01')"> 
+                          {{taxdetail.creditDate | date: 'MM/dd/yyyy'}}
+                          </span>
+                    </td>
+                    <td>{{taxdetail.paymentStatus}}</td>
+                    <td>{{taxdetail.payMethodNumberAmount}}</td>
+                    <td>
+                      <select class="form-control" [disabled]="isBatchAgencyReadOnly" [title]="paymentDetailModal.batchAgency" name="batchAgency"
+                        [(ngModel)]="taxdetail.batchAgencyName">
+                        <option [ngValue]="undefined" disabled selected>select Batch agency</option>
+                        <option title="agency.item_id" *ngFor="let agency of batchAgencyList" [value]="agency">
+                          {{agency}}
+                        </option>
+                      </select>
+                    </td>
+                    <td>
+                      <div class="text-right" *ngIf="taxdetail.selCorrectionReason != 'Edit Payment'">{{taxdetail.taxAmountPaid | number : '1.2-2'}}</div>
+                      <!-- verify it -->
+                      <div *ngIf="taxdetail.selCorrectionReason == 'Edit Payment'">
+                        <input type="text" id="taxAmount" name="taxAmount" class="form-control" maxlength="10" min="0" [(ngModel)]="taxdetail.taxAmountPaid"
+                          twoDigitDecimaNumber>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="text-right" *ngIf="taxdetail.selCorrectionReason != 'Edit Payment'"> {{taxdetail.penaltyAmount | number : '1.2-2'}}</div>
+
+                      <div *ngIf="taxdetail.selCorrectionReason == 'Edit Payment'">
+                        <input type="text" id="penaltyAmount" name="penaltyAmount" class="form-control" [(ngModel)]="taxdetail.penaltyAmount" maxlength="10"
+                          min="0" twoDigitDecimaNumber>
+
+                      </div>
+                    </td>
+                    <!-- verify it -->
+                    <td>
+                      <div class="text-right" *ngIf="taxdetail.selCorrectionReason != 'Edit Payment'">{{taxdetail.interestAmount | number : '1.2-2'}}</div>
+                      <div *ngIf="taxdetail.selCorrectionReason == 'Edit Payment'">
+                        <input type="text" id="interestAmount" name="interestAmount" class="form-control" [(ngModel)]="taxdetail.interestAmount"
+                          maxlength="10" min="0" twoDigitDecimaNumber>
+                      </div>
+                      <!-- {{taxdetail.interestAmount | number : '1.2-2'}} -->
+                    </td>
+                    <td>
+                      <div class="text-right" *ngIf="taxdetail.selCorrectionReason != 'Edit Payment'">{{taxdetail.costAmount | number : '1.2-2'}}</div>
+                      <div *ngIf="taxdetail.selCorrectionReason == 'Edit Payment'">
+                        <input type="text" id="costAmount" name="costAmount" class="form-control" [(ngModel)]="taxdetail.costAmount" maxlength="10"
+                          min="0" twoDigitDecimaNumber>
+                      </div>
+
+                      <!-- {{taxdetail.costAmount | number : '1.2-2'}} -->
+                    </td>
+
+                    <td>
+                      <div>{{calculateTotal(taxdetail.taxAmountPaid,taxdetail.penaltyAmount,taxdetail.interestAmount,taxdetail.costAmount)|
+                        number : '1.2-2'}}</div>
+
+                    </td>
+                    <!-- verify it -->
+                    <td>
+                      <select class="form-control" name="correctionReason" (change)="OnChangeReason($event.target.value,i)" [(ngModel)]="taxdetail.selCorrectionReason">
+                        <option *ngFor="let reason of taxdetail.correctionReasons" [value]="reason">{{reason}} </option>
+                      </select>
+                    </td>
+                    <!-- <td>
+                                                <button class="btn btn-primary w-100p p-05">Save</button>
+                                            </td> -->
+                  </tr>
+
+                </tbody>
+              </table>
+            </div>
+
+          </form>
+        </div>
+      </fieldset>
+    </div>
+    <div class="control-block-container payment-correction-button pr-3" style="justify-content: flex-end">
+      <div class="p-2 mt-2 float-right save-button" *ngIf="isPaymentCorrectionFlag" [ngClass]="{'text-failed':isSaveFailed}">
+        {{isPaymentCorrectionPageSaved}}
+      </div>
+      <div class="p-2 mt-2 float-right save-button" *ngIf="paymentCorrectionResponse.paymentCorrectionDetails[0]?.correctionReasons.length<=1">
+        Corrections are not allowed for this payment.
+    </div>
+
+    <button class="btn btn-primary w-100p p-05 float-right" [disabled]="isSaveButtonDisable" (click)="savePaymentDetail(paymentCorrectionResponse)">Save</button>
+
+  </div>
+  <div class="payment-stub-block pt-3" *ngIf="paymentCorrectionResponse['paymentCorrectionLinks'] && paymentCorrectionResponse['paymentCorrectionLinks'].length">
+    <fieldset>
+      <legend class="legend-border">Other Stub(s) Linked to Payment</legend>
+
+      <div class="row align-item tax-bill-detail pt-4">
+
+        <div class="table-responsive payment-detail-table-container ">
+          <table class="table">
+            <thead>
+              <th>Transaction Date</th>
+              <th>Credit Date</th>
+              <th>Payment Status</th>
+              <th>Payment Method/Number/Amount</th>
+              <th>APN</th>
+              <th>Tracer No.</th>
+              <th>Install No.</th>
+              <th>Install Status</th>
+              <th>Tax Amount</th>
+              <th>Penalty Amount</th>
+              <th>Interest Amount</th>
+              <th>Cost Amount</th>
+              <!-- <th>ReturnedCheckFee</th> -->
+              <th>Total Amount</th>
+            </thead>
+            <tbody>
+              <tr *ngFor="let paymentCorrectionLink of paymentCorrectionResponse['paymentCorrectionLinks']">
+                <td>{{paymentCorrectionLink.transactionDate | date: 'MM/dd/yyyy'}}</td>
+                <td>{{paymentCorrectionLink.creditDate | date:'MM/dd/yyyy'}}</td>
+                <td>{{paymentCorrectionLink.paymentStatus}}</td>
+                <td>{{paymentCorrectionLink.payMethodNumberAmount}}</td>
+                <td>{{paymentCorrectionLink.apn}}</td>
+                <td>{{paymentCorrectionLink.tracerNo}}</td>
+                <td>{{paymentCorrectionLink.installNo}}</td>
+                <td>{{paymentCorrectionLink.installStatus }}</td>
+                <td>{{paymentCorrectionLink.taxAmountPaid}}</td>
+                <td>{{paymentCorrectionLink.penaltyAmount | number : '1.2-2'}}</td>
+                <!-- verify it -->
+                <td>{{paymentCorrectionLink.interestAmount | number : '1.2-2'}}</td>
+                <td>{{paymentCorrectionLink.costAmount | number : '1.2-2'}}</td>
+                <!-- <td>{{paymentCorrectionLink.returnCheckFee | number : '1.2-2'}}</td> -->
+                <td>
+                    {{calculateTotal(paymentCorrectionLink.taxAmountPaid,paymentCorrectionLink.penaltyAmount,paymentCorrectionLink.interestAmount,paymentCorrectionLink.costAmount)
+                      | number : '1.2-2'}}
+                  
+                 <!--
+                  {{paymentCorrectionLink.totalTaxPaid | number : '1.2-2'}}
+                 -->
+                
+                </td>
+                <!-- verify it -->
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+</div>
+</div>
+<div id="correction-reason" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">Correction Reasons</h4>
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p>
+          <b>Edit Payment</b>
+        </p>
+        <p>You must have security access for this function.
+          <br> Payment Status must be "Accepted","Double Payment","Edit Payment - Accepted","Edit Payment - Rejected","Rejected","Reapply
+          - Rejected" or "Reapplied - Accepted"
+          <br>
+        </p>
+        <p>
+          <b>Reverse Returned Check</b>
+        </p>
+        Payment Source must be "Cashiering", "Lockbox" or "Remittance"
+        <br>
+        <p>Payment Status must be "Accepted","Edit Payment - Accepted" or "Reapplied - Accepted" (Pay Code '02' will be used)
+          <br> Or
+          <br> "Rejected","Double Payment","Reapply - Rejected" or "Edit Payment - Rejected" (Pay Code '03' will be used)
+          <br>
+
+          <p>
+            <b>Reverse Other</b>
+          </p>
+          Payment Status must be "Accepted" or "Reapplied - Accepted" (Pay Code '02' will be used)
+          <br> Or
+          <br> "Rejected", "Reapply -Rejected" or "Edit Payment -Rejected" (Pay Code '03' will be used)
+          <br>
+
+          <p>
+            <b>Reverse Double Payment</b>
+          </p>
+          <p>Payment Status must be "Double Payment"(Pay Code '03' will be used)
+            <br>
+          </p>
+          <p>
+            <b>Change Batch Agency</b>
+          </p>
+          <p>Payment source must be CORTAC</p>
+          <br>
+
+
+          <p>
+            <b>Undo</b>
+          </p>
+          <p>Payment Status must be "Edit Payment-Pending","Reverse-Returned Check-Pending","Reverse-Other-Pending" or "Reverse-Double
+            Payment-Pending"
+          </p>
+
+
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<div id="save-correction-reason" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <p>There are unsaved payment detail changes.Do you want to save the changes (OK), or discard the changes and continue
+          (Cancel)?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" (click)="saveChangedPaymentCorrection()" class="btn btn-default">Ok</button>
+        <button type="button" (click)="revertChangedPaymentCorrection()" class="btn btn-default">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="modal fade" id="batch-agency-modal" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-body">
+        <p [innerHtml]="batchAgencyUpdateMeg">
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" (click)="savePaymentCorrectionDetails(null)" class="btn btn-default">Ok</button>
+        <button type="button" (click)="cancelBatchAgencyModal()" class="btn btn-default">Cancel</button>
+      </div>
+    </div>
+  </div>

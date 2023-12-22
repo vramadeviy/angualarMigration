@@ -1,0 +1,89 @@
+<div class="preference-table-container">
+
+  <div class="landing-page-preference-container mb-2">
+    <div class="row landing-page-row p-0">
+      <div class="landing-page-lable col-md-3">
+        <label> My Landing Page</label>
+      </div>
+      <div class="col-md-4 landing-dropdown p-0" *ngIf="menuItemsAssigned">
+        &nbsp;
+        <ng-multiselect-dropdown class="landing-page-dropdown" [(ngModel)]="selectedItems" [placeholder]="'Select Landing Page'"
+          [data]="menuItemsAssigned" [settings]="dropdownSettings" (onSelect)="onItemSelect($event)"></ng-multiselect-dropdown>
+      </div>
+
+    </div>
+  </div>
+  <div class="landing-page-lable">
+    <label>Columns for Payment Lookup and Payment History</label>
+    <i class="fa fa-info-circle float-right" tooltip="Drag and drop column names to the order you want to see them in. Uncheck the corresponding check box for any column that you don't want to see."
+      placement="right"></i>
+  </div>
+
+  <div class="pane pane-table-preference">
+    <div class="pane-hScroll page-preference-counter">
+      <div class="pane-vHeaderScroll">
+        <table>
+          <thead class="preference-table-header fixed-order">
+            <th style="width:20px">Order</th>
+
+          </thead>
+        </table>
+      </div>
+      <div class="pane-vScroll pane-vScroll-static">
+        <table id="sortable">
+
+          <tbody>
+
+            <tr *ngFor="let object of PreferenceTableHeaderData;let i=index;">
+              <td class="handle sortable" style="width:20px">{{i+1}}</td>
+
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="pane-hScroll">
+     <!--  <div class="pane-vHeaderScroll">
+        <table>
+          <thead class="preference-table-header">
+
+            <th>Column Name</th>
+            <th style="width:60px">
+              <mat-checkbox (change)="selectAllItem()" class="example-margin" [(ngModel)]="allItemsSelected">Show Column</mat-checkbox>
+            </th>
+          </thead>
+        </table>
+      </div> -->
+      <div class="pane-vScroll">
+        <table id="preferenceHeaderTable">
+          <thead class="preference-table-header" style="    background: darkslateblue;
+              color: #fff;">
+
+            <th>Column Name</th>
+            <th>
+              <mat-checkbox (change)="selectAllItem()" class="example-margin" [(ngModel)]="allItemsSelected">Show Column</mat-checkbox>
+            </th>
+          </thead>
+          <tbody>
+            <tr class="dragger-container" *ngFor="let object of PreferenceTableHeaderData;let i=index;" [ngClass]="{'first': object.isSelected}">
+              <td>{{object.item_text}}</td>
+              <td style="width:60px">
+                <span *ngIf="object.isSelected" id="selectedHeaderItem" style="display:none;">{{object.item_id}}</span>
+                <mat-checkbox (change)="selectEntity(object,i)" value={{object.item_id}} [(ngModel)]="object.isSelected"></mat-checkbox>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="isFilterLimit-container float-right" *ngIf="isTableHearSelected">At least 6 columns must be selected for display</div>
+    <div class="error-mag float-right" *ngIf="isLandingPageSelected">Please Select Landing Page</div>
+    <div class="error-mag p-2 mt-2 float-right font-weight-bold preference-success" *ngIf="isPreferencePageSaved">Selected Preference has been Saved Successfully</div>
+    <div class="isFilterLimit-container mt-2 float-right text-danger" *ngIf="isPreferencePageFailed">Preference Failed to save</div>
+  </div>
+  <div class="save-preference-container mt-2">
+    <button type="button" (click)="savePreferencePageData()" class="btn btn-primary float-right">Save</button>
+  </div>
+
+</div>

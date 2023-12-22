@@ -1,0 +1,150 @@
+<div class="daily-payment-report">
+  <div class="report-snapshot-wrapper">
+    <fieldset>
+      <legend class="legend-border">Search Reports</legend>
+      <div class="search-wrapper mb-4">
+        <div class="from-date">
+          <label class="col-form-label">From Date</label>
+          <ngb-datepicker-popup [tabIndex]="1" [selectedDateKey]="searchModel['from_date']" controlName="fromDate" [maxDateKey]="startCalenderDate"
+            (clear)="clearNgModelValue()" (notify)="onDateSelected($event, 'from_date')"></ngb-datepicker-popup>
+          <div class="error-msg form-alert" *ngIf="isReportFromDateValid">From Date must be less than the To date.
+          </div>
+        </div>
+        &nbsp;&nbsp;&nbsp;
+        <div class="to-date">
+          <label class="col-form-label">To Date</label>
+          <ngb-datepicker-popup [tabIndex]="2" [selectedDateKey]="searchModel['to_date']" controlName="toDate" (clear)="clearNgModelValue()"  
+            (notify)="onDateSelected($event, 'to_date')"></ngb-datepicker-popup>
+          <div class="error-msg form-alert" *ngIf="isReportToDateValid">From Date must be less than or equal to To date
+          </div>
+        </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div class="action-wrapper">
+          <button class="btn btn-primary w-100p p-05" (click)="onSubmit()"
+            tabindex="19">Search</button>
+        </div>
+      </div>
+      <div class="report-history-detail" *ngIf="reportHistoryResponse &&reportHistoryResponse.length;else noData">
+        <div class="pane pane-table-preference">
+          <div class="pane-hScroll">
+            <div class="pane-vHeaderScroll">
+              <table>
+                <thead class="preference-table-header fixed-order">
+                  <th style="width:100px">Created Date/Time</th>
+                  <th style="width:300px">Report Name</th>
+                </thead>
+              </table>
+            </div>
+            <div class="pane-vScroll pane-vScroll-static">
+              <table>
+                <tbody>
+                  <tr *ngFor="let report of reportHistoryResponse">
+                    <td class="handle" style="width:100px">{{report.reportDate}} {{report.reportTime}}</td>
+                    <td class="handle" style="width:300px">
+                      <a href="javaScript:void(0)" (click)="getSelectedReportDetail(report.reportURL)">{{report.reportName}}</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ng-template #noData>
+        <span class="error error-wrapper"> {{errorMsg}}</span>
+      </ng-template>
+    </fieldset>
+   
+  </div>
+  <div class="filter-container">
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <form #reportFilter="ngForm">
+          <fieldset>
+            <legend class="legend-border">Date Range</legend>
+            <div class="row">
+              <div class="col-8 form-group">
+                <!-- <div class="row">
+                  <div class="col-md-6 col-sm-6 col-xs-12 col-lg-6" style="font-weight:bold;" *ngFor="let entry of dailySearchOptions; let idx = index">
+                    <mat-radio-button class="radio-button-group" [checked]="(idx === 0)" (change)="onSelectedType(entry)" [value]="entry.id">{{entry.description}}</mat-radio-button>
+                  </div>
+                </div> -->
+                <!-- <div class="row"> -->
+                <!-- <div class="section-1 col-6">
+                    <div class="col-12 mt-3">
+                      <div class="flex-layout">
+                        <label class="form-control-lable">Transaction Date</label>
+                        <div class="form-field">
+                          <ngb-datepicker-popup [disabled]="selecteReportType!='1'" [selectedDateKey]="dailyReportFilter['transactionDate']" controlName="dailyReportForm"
+                            (clear)="clearNgModelValue()" (notify)="onSelectNotify($event,'Transaction Date')" [maxDateKey]="startCalenderDate"></ngb-datepicker-popup>
+                        </div>
+                      </div>
+                      <div class="error-msg form-alert" *ngIf="transactionDateValidation">Transaction Date must be less than the current date.
+                      </div>
+                    </div>
+                    <div class="flex-layout col-12 mt-3">
+                      <label class="form-control-lable">Include More Reports</label>
+                      <div class="form-field">
+                        <ng-multiselect-dropdown [disabled]="selecteReportType!='1'" #ngMultiselect (focus)="ngMultiselect.toggleDropdown($event)"
+                          [placeholder]="'Select Additional Reports'" tabIndex="-1" [data]="type" [(ngModel)]="dailyReportFilter['moreOption']"
+                          [settings]="dropdownSettings" (onSelect)="onItemSelect($event)" name="moreOption" (onSelectAll)="onSelectAll($event)"></ng-multiselect-dropdown>
+                      </div>
+                    </div>
+                  </div> -->
+                <div class="row">
+                  <div class="col-5">
+                    <!-- <div class="flex-layout"> -->
+                    <label class="form-control-lable">Deposit Date From
+                        <span class="text-danger font-weight-bold">*</span>
+                    </label>
+                    <!-- <div class="form-field"> -->
+                    <ngb-datepicker-popup [disabled]="selecteReportType!='2'" [selectedDateKey]="dailyReportFilter['dailyReportFrom']" [(ngModel)]="dailyReportFilter.dailyReportFrom"
+                      [controlName]="'dailyReportFrom'" (notify)="onSelectNotify($event,'From')" name="dailyReportFrom" [required]="true" validateDate #dailyReportFrom="ngModel"
+                      [maxDateKey]="startCalenderDate" ngDefaultControl></ngb-datepicker-popup>
+                    <!-- </div> -->
+                    <!-- </div> -->
+                    <div class="error-msg form-alert" *ngIf="isFromDateValid">From Date is required and must be less than the current date.
+                    </div>
+                  </div>
+                  <div class="col-5">
+                    <label class="form-control-lable">Deposit Date To
+                        <span class="text-danger font-weight-bold">*</span>
+                    </label>
+                    <div class="form-field">
+                      <ngb-datepicker-popup [(ngModel)]="dailyReportFilter.dailyReportTo" [required]="true" [disabled]="selecteReportType!='2'"
+                        [selectedDateKey]="dailyReportFilter['dailyReportTo']" name="dailyReportTo" [controlName]="'dailyReportTo'"
+                        (notify)="onSelectNotify($event,'To')" [minDateKey]="dailyReportFilter['dailyReportFrom']" ngDefaultControl></ngb-datepicker-popup>
+                    </div>
+                    <div class="error-msg form-alert" *ngIf="isToDateValid">To Date is required and  must be greater than the From date.
+                    </div>
+                  </div>
+                </div>
+                <!-- </div> -->
+              </div>
+
+              <div class="col-4 form-group d-inline-flex align-self-end">
+                <button [disabled]="reportFilter.invalid || isFromDateValid || isToDateValid" class="btn btn-primary p-05" (click)="getReport(dailyReportFilter,reportFilter)">Generate Report</button>
+              </div>
+            </div>
+          </fieldset>
+
+        </form>
+
+        <div class="col-md-1 col-sm-1 col-xs-1">
+
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="min-height: 195px;">
+  <div class="report-wrapper" *ngIf="reportServer">
+    <ssrs-reportviewer [reportserver]="reportServer" [reporturl]="reportUrl" [showparameters]="false" [parameters]="parameters"
+      [language]="language" [width]="width" [height]="height" [toolbar]="toolbar">
+    </ssrs-reportviewer>
+  </div>
+  <div class="report-wrapper" *ngIf="reportHistoryURL">
+      <iframe style="width:100%;height:550px;" *ngIf="reportHistoryURL" [src]="reportHistoryURL"></iframe>
+  
+    </div>
+    </div>
+</div>

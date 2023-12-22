@@ -1,0 +1,104 @@
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { AppCommons } from '../../shared/app.commons';
+import { TransactionRegisterService } from './transaction-register.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { DomSanitizer, SafeHtml, SafeUrl } from '@angular/platform-browser';
+const REPORTBYLIST = [{
+  // value:'paymentSource',name:'Payment Source'
+  value: '3', name: 'Payment Source'
+}, {
+  // value:'taxType',name:'Tax Type'
+  value: '2', name: 'Tax Type'
+
+}
+]
+@Component({
+  selector: 'app-transaction-register',
+  templateUrl: './transaction-register.component.html',
+  styleUrls: ['./transaction-register.component.scss'],
+  providers: [AppCommons, TransactionRegisterService],
+  encapsulation: ViewEncapsulation.None
+})
+export class TransactionRegisterComponent implements OnInit {
+  language: string = "en-us";
+  width: number = 100;
+  height: number = 100;
+  toolbar: string = "true";
+  reportServer;
+  reportUrl;
+  showParameters = "true";
+  parameters;
+  reportHistoryResponse; // hold report history response
+  reportHistoryURL:SafeUrl;
+  transactionRegisterModel = [{
+    'transactionDate': '',
+    'reportBy': '',
+    'pendingCorrection': ''
+  }];
+  reportByList = REPORTBYLIST;
+  startCalenderDate;
+  calendarMinDate
+  constructor(public appCommons: AppCommons, private transactionRegisterService: TransactionRegisterService,public domSanitizer:DomSanitizer) { }
+
+  ngOnInit() {
+    this.bindDefaultNgModelaValues();
+    this.getReportHistory();
+  }
+
+  /** Get Report history of last 10 days */
+  getReportHistory() {
+    let postParams = {
+      "fromDate": "07/01/2019",
+      "toDate": "07/09/2050",
+      "reportName": "Transaction_Register_By_Payment_Source",
+      //"reportName": "Transaction_Register_By_Tax_Type",
+      "reportType": "NTT",
+      //"environment": "Dev"
+      "environment": "QA"
+     // "environment": "UAT"
+     // "environment": "PROD"
+    }
+    this.transactionRegisterService.getReportHistory(postParams).subscribe(reportHistory => {
+      if(reportHistory.item2==='SUCCESS'){
+        this.reportHistoryResponse=reportHistory.item1;
+      }
+    }, (err: HttpErrorResponse) => {
+
+    })
+  }
+  getSelectedReportDetail(url){
+    this.reportServer='';
+    this.reportHistoryURL=this.domSanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+  bindDefaultNgModelaValues() {
+    this.startCalenderDate = { month: new Date().getMonth() + 1, day: new Date().getDate() - 1, year: new Date().getFullYear() };
+    this.calendarMinDate = { month: 7, day: 2, year: 2018 };
+    this.transactionRegisterModel['reportBy'] = '2';
+    this.transactionRegisterModel['transactionDate'] = this.appCommons.setPreviousDefaultDate();
+
+  }
+  public onSelectNotify(date, key) {
+    switch (key) {
+      case 'transactionDate':
+        this.transactionRegisterModel['transactionDate'] = date;
+        break;
+    }
+  }
+  getTransactionRegisterReport(ngModelValues) {
+    this.reportHistoryURL='';
+    console.log(ngModelValues);
+    this.reportServer = null;
+    setTimeout(() => {
+      this.reportServer = 'http://us01dws033/ReportServer/Pages/ReportViewer.aspx'
+      //this.reportUrl = 'Development/TaxTools/Transaction_Register_Report';
+     this.reportUrl = 'System Test/TaxTools/Transaction_Register_Report';
+     //this.reportUrl = 'User Acceptance/TaxTools/Transaction_Register_Report';
+      this.showParameters = "true";
+      this.parameters = {
+        "Transaction_date": ngModelValues['transactionDate'],
+        "REPORT_DEFINITION_ID": ngModelValues['reportBy'],
+        "Include_Pending": ngModelValues['pendingCorrection'] ? 'Y' : 'N'
+      };
+    });
+  }
+}

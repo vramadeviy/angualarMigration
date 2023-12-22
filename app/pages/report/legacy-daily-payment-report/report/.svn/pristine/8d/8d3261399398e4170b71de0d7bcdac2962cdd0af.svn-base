@@ -1,0 +1,110 @@
+<div class="transaction-register-wrapper">
+
+  <div class="report-history-wrapper">
+    <fieldset>
+      <legend class="legend-border">Report History</legend>
+      <div class="report-history-detail">
+        <div class="pane pane-table-preference">
+          <div class="pane-hScroll">
+            <div class="pane-vHeaderScroll">
+              <table>
+                <thead class="preference-table-header fixed-order">
+                  <th style="width:100px">Created Date/Time</th>
+                  <th style="width:300px">Report Name</th>
+                </thead>
+              </table>
+            </div>
+            <div class="pane-vScroll pane-vScroll-static">
+              <table>
+                <tbody>
+                  <!-- <tr *ngFor="let report of reportHistoryResponse">
+                    <td class="handle" style="width:100px">{{report.reportDate}}:{{report.reportTime}}                     
+                      
+                    </td>
+                    <td class="handle" style="width:300px">
+                         {{report.reportName}}  
+                           <!-- <div *ngIf="report.reportName === 'Transaction_Register_By_Payment_Source'" >
+                            <a href="javaScript:void(0)" (click)="getSelectedReportDetail(report.reportURL)">
+                                <!-- Transaction_Register_By_Payment_Source for June 28, 2019 
+                              </a>
+                        </div> -->
+                        <!-- <div  *ngIf="report.reportName === 'Transaction_Register_By_Tax_Type'" >
+                            <a href="javaScript:void(0)" (click)="getSelectedReportDetail(report.reportURL)">
+                                <!-- Transaction_Register_By_Tax_Type  for June 28, 2019 
+                                 </a> 
+                        </div>  
+                        
+                    </td>
+                  </tr> -->
+                  <tr *ngFor="let report of reportHistoryResponse">
+                    <td class="handle" style="width:100px">{{report.reportDate}}:{{report.reportTime}}</td>
+                    <td class="handle" style="width:300px">
+                      <a href="javaScript:void(0)" (click)="getSelectedReportDetail(report.reportURL)">{{report.reportName}}</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </fieldset>
+
+  </div>
+  <div class="filter-container">
+    <form #reportFilter="ngForm">
+      <fieldset>
+        <legend class="legend-border">On-Demand Report</legend>
+        <div class="row">
+          <div class="col-md-2 col-sm-2 col-xs-12 col-lg-2">
+            <div class="form-group">
+              <label class="form-control-label">Transaction Date
+                <span class="text-danger font-weight-bold">*</span>
+              </label>
+              <div class="form-field">
+                <ngb-datepicker-popup [selectedDateKey]="transactionRegisterModel['transactionDate']" [(ngModel)]="transactionRegisterModel.transactionDate"
+                  [controlName]="'transactionDate'" (notify)="onSelectNotify($event,'transactionDate')" name="transactionDate"
+                  [required]="true" [maxDateKey]="startCalenderDate" [minDateKey]="calendarMinDate" (clear)="clearNgModelValue()"
+                  ngDefaultControl></ngb-datepicker-popup>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-2 col-sm-2 col-xs-12 col-lg-2">
+            <div class="form-group">
+              <label class="form-control-label">Report By
+                <span class="text-danger font-weight-bold">*</span>
+              </label>
+              <select class="form-control" name="reportBy" #reportBy="ngModel" [(ngModel)]="transactionRegisterModel['reportBy']" required>
+                <option *ngFor="let object of reportByList" [value]="object.value">{{object.name}}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-3 col-xs-12 col-lg-3 align-center-item">
+            <div class="form-group">
+              <input class="form-check-input is-invalid" [(ngModel)]="transactionRegisterModel['pendingCorrection']" name="pendingCorrection"
+                #pendingCorrection="ngModel" type="checkbox" value="" id="invalidCheck3">
+              <label class="check-label" for="invalidCheck3">
+                Include Pending Corrections
+              </label>
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-3 col-xs-12 col-lg-3 flex-center">
+            <button class="btn btn-primary p-05" [disabled]="reportFilter.invalid" (click)="getTransactionRegisterReport(transactionRegisterModel)">Generate Report</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div style="min-height: 195px;">
+  <div class="report-wrapper" *ngIf="reportServer">
+    <ssrs-reportviewer [reportserver]="reportServer" [reporturl]="reportUrl" [showparameters]="false" [parameters]="parameters"
+      [language]="language" [width]="width" [height]="height" [toolbar]="toolbar">
+    </ssrs-reportviewer>
+  </div>
+  <div class="report-wrapper" *ngIf="reportHistoryURL">
+    <iframe style="width:100%;height:550px;" *ngIf="reportHistoryURL" [src]="reportHistoryURL"></iframe>
+
+  </div>
+</div>
+</div>

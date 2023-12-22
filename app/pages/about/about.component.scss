@@ -1,0 +1,18 @@
+.about-version-details-wrapper{
+    // margin-left: 41%;
+    font-size: 16px;
+    .about-container{
+        display: flex;
+        min-width: 40%;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        margin-top: 5%;
+    }
+    .version-label{
+        font-weight: 500;
+    }
+    .about-logo{
+        margin-right: 12px;
+    }
+}

@@ -1,0 +1,122 @@
+<div class="tax-collection-payments-wrapper">
+  <div class="report-snapshot-wrapper">
+    <fieldset>
+      <legend class="legend-border">Search Reports</legend>
+
+      <div class="search-wrapper mb-4">
+        <div class="from-date">
+          <label class="col-form-label">From Date</label>
+          <ngb-datepicker-popup [tabIndex]="1" [selectedDateKey]="searchModel['from_date']" controlName="fromDate" [maxDateKey]="startCalenderDate"
+            (clear)="clearNgModelValue()" (notify)="onDateSelected($event, 'from_date')"></ngb-datepicker-popup>
+          <div class="error-msg form-alert" *ngIf="isReportFromDateValid">From Date must be less than the To date.
+          </div>
+        </div>
+        &nbsp;&nbsp;&nbsp;
+        <div class="to-date">
+          <label class="col-form-label">To Date</label>
+          <ngb-datepicker-popup [tabIndex]="2" [selectedDateKey]="searchModel['to_date']" controlName="toDate" (clear)="clearNgModelValue()"  
+            (notify)="onDateSelected($event, 'to_date')"></ngb-datepicker-popup>
+          <div class="error-msg form-alert" *ngIf="isReportToDateValid">From Date must be less than or equal to To date
+          </div>
+        </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div class="action-wrapper">
+          <button class="btn btn-primary w-100p p-05" (click)="onSubmit()"
+            tabindex="19">Search</button>
+        </div>
+      </div>
+      
+      <div class="report-history-detail">
+        <div class="pane pane-table-preference">
+          <div class="pane-hScroll">
+            <div class="pane-vHeaderScroll">
+              <table>
+                <thead class="preference-table-header fixed-order">
+                  <th style="width:100px">Created Date/Time</th>
+                  <th style="width:300px">Report Name</th>
+                </thead>
+              </table>
+            </div>
+            <div class="pane-vScroll pane-vScroll-static">
+              <table>
+                <tbody>
+                  <tr *ngFor="let report of reportHistoryResponse">
+                    <td class="handle" style="width:100px">{{report.reportDate}} {{report.reportTime}}</td>
+                    <td class="handle" style="width:300px">
+                      <a href="javaScript:void(0)" (click)="getSelectedReportDetail(report.reportURL)">{{report.reportName}}</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+  <div class="filter-wrapper">
+    <form #reportFilter="ngForm">
+      <fieldset>
+        <legend class="legend-border">On-Demand Report</legend>
+        <div class="row">
+          <div class="col-md-2 col-sm-2 col-xs-12 col-lg-2">
+            <div class="flex-layout form-group">
+              <label class="form-control-label">Deposit Date From
+                <span class="text-danger font-weight-bold">*</span>
+              </label>
+              <div class="form-field">
+                <ngb-datepicker-popup [selectedDateKey]="taxCollectionPaymentModel['depositFromDate']" [(ngModel)]="taxCollectionPaymentModel.depositFromDate"
+                  [controlName]="'depositFromDate'" (notify)="onSelectNotify($event,'From')" name="depositFromDate" #depositFromDate="ngModel"
+                  [required]="true" [maxDateKey]="startCalenderDate" [minDateKey]="calendarMinDate" (clear)="clearNgModelValue()"
+                  ngDefaultControl validateDate></ngb-datepicker-popup>
+              </div>
+            </div>
+            <div class="error-msg form-alert" *ngIf="isFromDateValid"> From Date must be less than or equal to To Date. </div>
+          </div>
+          <div class="col-md-2 col-sm-2 col-xs-12 col-lg-2">
+            <div class="flex-layout form-group">
+              <label class="form-control-label">Deposit Date To
+                <span class="text-danger font-weight-bold">*</span>
+              </label>
+              <div class="form-field">
+                <ngb-datepicker-popup [selectedDateKey]="taxCollectionPaymentModel['depositToDate']" [(ngModel)]="taxCollectionPaymentModel.depositToDate"
+                  [controlName]="'depositToDate'" (notify)="onSelectNotify($event,'To')" name="depositToDate" #depositToDate="ngModel"
+                  [required]="false" [minDateKey]="taxCollectionPaymentModel['depositFromDate']" (clear)="clearNgModelValue()"
+                  ngDefaultControl></ngb-datepicker-popup>
+              </div>
+            </div>
+            <div class="error-msg form-alert" *ngIf="isToDateValid">Deposit Date To must be greater than or equal to the Deposit Date From.
+            </div>
+          </div>
+          <!-- [(ngModel)]="paymentSourceListSelect" -->
+          <div class="col-md-2 col-sm-2 col-xs-12 col-lg-2">
+            <div class="form-group">
+              <label class="form-control-label">Payment Source</label>
+              <ng-multiselect-dropdown tabIndex="9" #ngMultiselectTOne (focus)="ngMultiselectTOne.toggleDropdown($event)" [placeholder]="'Payment Source'"
+              [data]="paymentSourceList" [(ngModel)]="taxCollectionPaymentModel['paymentSource']" [settings]="dropdownSettings"
+              name="paymentSource" [ngModelOptions]="{standalone: true}"></ng-multiselect-dropdown>
+              <!-- <select class="form-control" name="paymentSource" #paymentSource="ngModel" [(ngModel)]="taxCollectionPaymentModel['paymentSource']">
+
+                <option *ngFor="let object of paymentSourceList" [value]="object.item_id" [selected]="ALL"> {{object.item_text}}</option>
+              </select> -->
+            </div>
+          </div>
+          <div class="col-md-3 col-sm-3 col-xs-12 col-lg-3 text-align-center ">
+            <button class="btn btn-primary p-05" [disabled]="reportFilter.invalid || isFromDateValid || isToDateValid" (click)="getTransactionRegisterReport(taxCollectionPaymentModel,reportFilter)">Generate Report</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div style="min-height: 195px;">
+    <div class="report-details-wrapper" *ngIf="reportServer">
+      <ssrs-reportviewer [reportserver]="reportServer" [reporturl]="reportUrl" [showparameters]="false" [parameters]="parameters"
+        [language]="language" [width]="width" [height]="height" [toolbar]="toolbar">
+      </ssrs-reportviewer>
+    </div>
+    <div class="report-wrapper" *ngIf="reportHistoryURL">
+      <iframe style="width:100%;height:550px;" *ngIf="reportHistoryURL" [src]="reportHistoryURL"></iframe>
+
+    </div>
+  </div>
+</div>

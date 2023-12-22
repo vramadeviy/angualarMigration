@@ -1,0 +1,136 @@
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { AppCommons } from '../../shared/app.commons';
+import { TaxTypeList, PaymentSourceList, PaymentMethodList, MethodType } from './tax-collection-as-deposit-constant';
+
+const AMOUNTOPTIONLIST = [
+  {
+    description: 'Deposit Amount',
+    id: 1
+  }, {
+    description: 'Total Tax Amount',
+    id: 2
+  }
+];
+@Component({
+  selector: 'app-tax-collection-as-deposits.component',
+  templateUrl: './tax-collection-as-deposits.component.html',
+  styleUrls: ['./tax-collection-as-deposits.component.scss'],
+  providers: [AppCommons],
+  encapsulation: ViewEncapsulation.None
+})
+export class TaxCollectionAsDepositsComponent implements OnInit {
+  public amountOptions = AMOUNTOPTIONLIST;
+  reportServer;
+  reportUrl;
+  showParameters;
+  parameters;
+  language: string = "en-us";
+  width: number = 100;
+  height: number = 100;
+  toolbar: string = "true";
+  dropdownSettings = {};// hold dropdown setting configurations
+  dateType = null;
+  taxTypeList = [...TaxTypeList];
+  paymentSourseList = [...PaymentSourceList];
+  paymentMethodList = [...PaymentMethodList];
+  methodTypeList = [...MethodType];
+  creditDate;
+  tdate;
+  taxCollectionPaymentModel = {
+    'Tax_Type': '',
+    'Payment_Source': [],
+    'Payment_Method': [],
+    'Method_Type': [],
+
+    'Transaction_Date': '',
+    'Credit_Date': '',
+    // 'paymentSource': '', this was extra so report was giving error 
+    'From_Amount': '',
+    'Report_Date': '',
+    'To_Amount': '',
+    'Total_Tax_Amount': 'N',
+    'Deposit_Amount': 'Y',
+    'Payment_Date': false
+  }
+  paymentSourceList: any = [];
+  constructor(public appCommons: AppCommons) {
+    this.setInitailConfig()
+  }
+  setInitailConfig() {
+    this.dropdownSettings = this.appCommons.getMultiselectionDropDownSettings(false, 'item_id', 'item_id', 'item_text', 'Select All', 'Unselect All')
+  }
+  ngOnInit() {
+  }
+  getTransactionRegisterReport(filterData) {
+    let selectedFilter=JSON.parse(JSON.stringify(filterData));
+    this.reportServer = null;
+    selectedFilter['Payment_Source']=this.appCommons.getObjectToString(selectedFilter['Payment_Source'],'item_id');
+    selectedFilter['Payment_Method']=this.appCommons.getObjectToString(selectedFilter['Payment_Method'],'item_id');
+    selectedFilter['Method_Type']=this.appCommons.getObjectToString(selectedFilter['Method_Type'],'item_id');
+    selectedFilter['Payment_Date'] ? selectedFilter['Payment_Date']='Y' :selectedFilter['Payment_Date']= 'N'
+  
+    console.log(this.tdate);
+    setTimeout(() => {
+      this.reportServer = 'http://us01dws033/ReportServer/Pages/ReportViewer.aspx';
+      //this.reportUrl = 'User Acceptance/TaxTools/Tax_Collections_Deposit_Report';
+      //this.reportUrl = 'System Test/TaxTools/Tax_Collections_Deposit_Report';
+       this.reportUrl = 'Development/TaxTools/Tax_Collections_Deposit_Report';
+      this.showParameters = "true";
+      this.parameters = {
+        "REPORT_DEFINITION_ID": 5,
+        ...selectedFilter
+
+        //"paymentSource": "CORTAC",
+        //...filterData
+        // 
+      };
+    })
+  }
+  formatedValues(response) {
+    let selected
+    response.map
+  }
+  selectedType(key) {
+    switch (key) {
+      case 'transaction_Date':
+        this.taxCollectionPaymentModel['Transaction_Date'] = 'Y';
+        this.taxCollectionPaymentModel['Credit_Date'] = 'N'
+        break;
+      case 'credit_date':
+        this.taxCollectionPaymentModel['Transaction_Date'] = 'N';
+        this.taxCollectionPaymentModel['Credit_Date'] = 'Y'
+        break;
+    }
+  }
+  onItemSelect(item: any) {
+  }
+
+  onSelectAll(event) { }
+
+  selectedAmountType(key) {
+    switch (key) {
+      case 1:
+        this.taxCollectionPaymentModel['Deposit_Amount'] = 'Y';
+        this.taxCollectionPaymentModel['Total_Tax_Amount'] = 'N'
+        break;
+      case 2:
+        this.taxCollectionPaymentModel['Deposit_Amount'] = 'N';
+        this.taxCollectionPaymentModel['Total_Tax_Amount'] = 'Y'
+        break;
+    }
+  }
+
+  public onSelectNotify(date, key) {
+    switch (key) {
+      case 'Report_Date':
+        this.taxCollectionPaymentModel['Report_Date'] = date;
+        // this.taxCollectionPaymentModel['Transaction_Date'] = date;
+        break;
+
+    }
+  }
+
+
+}
+
+

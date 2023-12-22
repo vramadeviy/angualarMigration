@@ -1,0 +1,99 @@
+<div class="daily-batch-report-wrapper">
+  <div class="report-history-wrapper">
+    <fieldset>
+      <legend class="legend-border">Search Reports</legend>
+      <div class="search-wrapper mb-4">
+        <div class="from-date">
+          <label class="col-form-label">From Date</label>
+          <ngb-datepicker-popup [tabIndex]="1" [selectedDateKey]="searchModel['from_date']" controlName="fromDate" [maxDateKey]="startCalenderDate"
+            (clear)="clearNgModelValue()" (notify)="onDateSelected($event, 'from_date')"></ngb-datepicker-popup>
+          <div class="error-msg form-alert" *ngIf="isReportFromDateValid">From Date must be less than the To date.
+          </div>
+        </div>
+        &nbsp;&nbsp;&nbsp;
+        <div class="to-date">
+          <label class="col-form-label">To Date</label>
+          <ngb-datepicker-popup [tabIndex]="2" [selectedDateKey]="searchModel['to_date']" controlName="toDate" (clear)="clearNgModelValue()"
+            (notify)="onDateSelected($event, 'to_date')"></ngb-datepicker-popup>
+          <div class="error-msg form-alert" *ngIf="isReportToDateValid">From Date must be less than or equal to To date
+          </div>
+        </div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div class="action-wrapper">
+          <button class="btn btn-primary w-100p p-05" (click)="onSubmit()" tabindex="19">Search</button>
+        </div>
+      </div>
+      <div class="report-history-detail">
+        <div class="pane pane-table-preference">
+          <div class="pane-hScroll">
+            <div class="pane-vHeaderScroll">
+              <table>
+                <thead class="preference-table-header fixed-order">
+                  <th style="width:100px">Created Date/Time</th>
+                  <th style="width:300px">Report Name</th>
+                </thead>
+              </table>
+            </div>
+            <div class="pane-vScroll pane-vScroll-static">
+              <table>
+                <tbody>
+                  <tr *ngFor="let report of reportHistoryResponse">
+                    <td class="handle" style="width:100px">{{report.reportDate}} {{report.reportTime}}</td>
+                    <td class="handle" style="width:300px">
+                      <a href="javaScript:void(0)" (click)="getSelectedReportDetail(report.reportURL)">{{report.reportName}}</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </fieldset>
+
+  </div>
+  <div class="report-wrapper" *ngIf="reportHistoryURL">
+    <iframe style="width:100%;height:550px;" *ngIf="reportHistoryURL" [src]="reportHistoryURL"></iframe>
+
+  </div>
+  <!-- <div class="filter-container">
+    <div class="row">
+      <div class="col-md-12 col-sm-12 col-xs-12">
+        <fieldset>
+          <legend class="legend-border">Search Criteria</legend>
+          <div class="row">
+            <div class="col-md-2 col-sm-2 col-lg-2 col-xs-6">
+              <label class="form-control-lable">Transaction Date
+                <span class="text-danger font-weight-bold">*</span> 
+              </label>
+              <div class="form-field">
+            
+                <ngb-datepicker-popup 
+                [selectedDateKey]="dailyBatchReportFilter['transactionDate']" 
+                [(ngModel)]="dailyBatchReportFilter['transactionDate']"
+                controlName="transactionDate" name="transactionDate" 
+                (clear)="clearNgModelValue()" [required]="true"
+                (notify)="onSelectNotify($event,'Transaction Date')" 
+                  [maxDateKey]="startCalenderDate"  [minDateKey]="calendarMinDate" ngDefaultControl>
+                </ngb-datepicker-popup>
+              </div>
+
+            </div>
+            <div class="col-4 d-inline-flex align-self-end">
+              <button class="btn btn-primary w-100p p-05" (click)="getReport(dailyBatchReportFilter)">View Report</button>
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+  </div> -->
+  <!-- <div class="report-body-wrapper" *ngIf="reportServer">
+      <ssrs-reportviewer [reportserver]="reportServer" [reporturl]="reportUrl" [showparameters]="false" [parameters]="parameters"
+      [language]="language" [width]="width" [height]="height" [toolbar]="toolbar">
+    </ssrs-reportviewer>
+  </div> -->
+
+
+
+</div>

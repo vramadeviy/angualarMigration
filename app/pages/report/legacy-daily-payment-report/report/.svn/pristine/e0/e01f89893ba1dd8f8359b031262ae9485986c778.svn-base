@@ -1,0 +1,96 @@
+<div class="tax-collection-payments-wrapper">
+  <div class="report-snapshot-wrapper">
+    <fieldset>
+      <legend class="legend-border">Report History</legend>
+      <div class="report-history-detail">
+        <div class="pane pane-table-preference">
+          <div class="pane-hScroll">
+            <div class="pane-vHeaderScroll">
+              <table>
+                <thead class="preference-table-header fixed-order">
+                  <th style="width:100px">Created Date/Time</th>
+                  <th style="width:300px">Report Name</th>
+                </thead>
+              </table>
+            </div>
+            <div class="pane-vScroll pane-vScroll-static">
+              <table>
+                <tbody>
+                  <tr *ngFor="let report of reportHistoryResponse">
+                    <td class="handle" style="width:100px">{{report.reportDate}}:{{report.reportTime}}</td>
+                    <td class="handle" style="width:300px">
+                      <a href="javaScript:void(0)" (click)="getSelectedReportDetail(report.reportURL)">{{report.reportName}}</a>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+  <div class="filter-wrapper">
+    <form #reportFilter="ngForm">
+      <fieldset>
+        <legend class="legend-border">On-Demand Report</legend>
+        <div class="row">
+          <div class="col-md-2 col-sm-2 col-xs-12 col-lg-2">
+            <div class="flex-layout form-group">
+              <label class="form-control-label">Transaction Date From
+                <span class="text-danger font-weight-bold">*</span>
+              </label>
+              <div class="form-field">
+                <ngb-datepicker-popup [selectedDateKey]="taxCollectionPaymentModel['transactionFromDate']" [(ngModel)]="taxCollectionPaymentModel.transactionFromDate"
+                  [controlName]="'transactionFromDate'" (notify)="onSelectNotify($event,'From')" name="transactionFromDate"
+                  #transactionFromDate="ngModel" [required]="true" [maxDateKey]="startCalenderDate" [minDateKey]="calendarMinDate"
+                  (clear)="clearNgModelValue()" ngDefaultControl validateDate></ngb-datepicker-popup>
+              </div>
+            </div>
+            <div class="error-msg form-alert" *ngIf="transactionFromDate.errors?.validateDate">From Date must be less than the current date.
+            </div>
+            <div class="error-msg form-alert" *ngIf="isFormDateValid">Transaction Date From must be less than or equal to Transaction Date To. </div>
+          </div>
+          <div class="col-md-2 col-sm-2 col-xs-12 col-lg-2">
+            <div class="flex-layout form-group">
+              <label class="form-control-label">Transaction Date To</label>
+              <div class="form-field">
+                <ngb-datepicker-popup [selectedDateKey]="taxCollectionPaymentModel[' transactionToDate']" [(ngModel)]="taxCollectionPaymentModel.transactionToDate"
+                  [controlName]="'transactionToDate'" (notify)="onSelectNotify($event,'To')" name="transactionToDate" #transactionToDate="ngModel" [required]="false"
+                  [minDateKey]="taxCollectionPaymentModel['transactionFromDate']" (clear)="clearNgModelValue()" validateDate
+                  ngDefaultControl></ngb-datepicker-popup>
+              </div>
+            </div>
+            <div class="error-msg form-alert" *ngIf="transactionToDate.errors?.validateDate && taxCollectionPaymentModel.transactionToDate">To Date must be less than the current date.
+            </div>
+          </div>
+          <!-- [(ngModel)]="paymentSourceListSelect" -->
+          <div class="col-md-2 col-sm-2 col-xs-12 col-lg-2">
+            <div class="form-group">
+              <label class="form-control-label">Payment Source</label>
+              <select class="form-control" name="paymentSource" #paymentSource="ngModel" [(ngModel)]="taxCollectionPaymentModel['paymentSource']">
+
+                <option *ngFor="let object of paymentSourceList" [value]="object.item_id" [selected]="ALL"> {{object.item_text}}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-3 col-sm-3 col-xs-12 col-lg-3 text-align-center ">
+            <button class="btn btn-primary p-05" [disabled]="reportFilter.invalid" (click)="getTransactionRegisterReport(taxCollectionPaymentModel,reportFilter)">Generate Report</button>
+          </div>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div style="min-height: 195px;">
+  <div class="report-details-wrapper" *ngIf="reportServer">
+    <ssrs-reportviewer [reportserver]="reportServer" [reporturl]="reportUrl" [showparameters]="false" [parameters]="parameters"
+      [language]="language" [width]="width" [height]="height" [toolbar]="toolbar">
+    </ssrs-reportviewer>
+  </div>
+  <div class="report-wrapper" *ngIf="reportHistoryURL">
+    <iframe style="width:100%;height:550px;" *ngIf="reportHistoryURL" [src]="reportHistoryURL"></iframe>
+
+  </div>
+</div>
+</div>

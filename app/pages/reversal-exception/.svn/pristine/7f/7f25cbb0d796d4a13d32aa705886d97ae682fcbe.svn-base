@@ -1,0 +1,301 @@
+import { Component, OnInit, ViewEncapsulation, AfterViewInit } from '@angular/core';
+import * as $ from 'jquery';
+import { ReversalExceptionService } from './reversal-exception.service';
+import { Router } from '@angular/router';
+import { CommonService } from '../_service/common.service';
+import { DownloadService } from '../_service/download-service';
+import { GlobalTaxToolService } from '../_service/global-taxtools-service';
+export interface ReversalExceptionModal {
+  "exceptionFromDate": string,
+  "exceptionToDate": string,
+  "status": string,
+  "propType": string
+}
+@Component({
+  selector: 'app-reversal-exception',
+  templateUrl: './reversal-exception.component.html',
+  styleUrls: ['./reversal-exception.component.scss'],
+  encapsulation: ViewEncapsulation.None,
+  providers: [ReversalExceptionService, DownloadService]
+})
+export class ReversalExceptionComponent implements OnInit, AfterViewInit {
+  public isDateFormatWrong = false;
+  public isToDate = false;
+  public isFromDate = false;
+  public isMandatoryWrong = false;
+  public isValid=false;
+  exceptionTypeList = [{
+    value: 'A',
+    label: 'All'
+  }, {
+    value: 'H',
+    label: 'Handled'
+  }, {
+    value: 'N',
+    label: 'Not Handled'
+  }];
+  taxTypeList = [{
+    value: 'A',
+    label: 'All'
+  }, {
+    value: 'SEC',
+    label: 'Secured'
+  }, {
+    value: 'SUP',
+    label: 'Supplemental'
+  }, {
+    value: 'SUD',
+    label: 'Secured Delinquent'
+  }, {
+    value: 'UNSEC',
+    label: 'Unsecured'
+  }];
+  searchModel = {};
+  selectedReasonsList = [];
+  reversalExceptionResponse = [];
+  errorMessage='';
+  startCalenderDate = { month: new Date().getMonth() + 1, day: new Date().getDate(), year: new Date().getFullYear() };
+  public reverse = true;
+  public order: string='';
+  constructor(private reversalExceptionService: ReversalExceptionService, private router: Router, public commonService: CommonService, private downloadService: DownloadService, private _globalService: GlobalTaxToolService) { }
+
+  ngOnInit() {
+    this.initModelValues();
+  }
+  private initModelValues() {
+    var _item = this._globalService.getData();
+    const myProfileInfo = _item;
+    const previousDay = myProfileInfo['previousDay'];
+    this.searchModel['status'] = 'N';
+    this.searchModel['exceptionFromDate'] = this.FormatDateString(previousDay);
+    // this.searchModel['exceptionToDate'] = this.FormatDateString(previousDay);
+    this.searchModel['propType'] = 'A'
+  }
+
+  private FormatDateString(value) {
+    var retPrevDate;
+    let newtDate = new Date(value);
+    return newtDate.getMonth() + 1 + '/' + newtDate.getDate() + '/' + newtDate.getFullYear();
+  }
+  ngAfterViewInit() {
+    this.verticalHorizontalScrollConfig();
+  }
+
+  /**
+   * @method verticalHorizontalScrollConfig
+   * @description Scroll configuration
+   * @memberof PaymentLookupComponent
+   */
+  private verticalHorizontalScrollConfig() {
+    $('#clscroll-content').scroll(function () {
+      $('#clscroll-row-headers').scrollTop($('#clscroll-content').scrollTop());
+      // console.log("left");
+      $('#clscroll-column-headers').scrollLeft(
+        $('#clscroll-content').scrollLeft()
+      );
+    });
+
+    $('#clscroll-column-headers').scroll(function () {
+      $('#clscroll-content').scrollLeft(
+        $('#clscroll-column-headers').scrollLeft()
+      );
+    });
+
+    $('#clscroll-row-headers').scroll(function () {
+      // $("#clscroll-content").scrollTop($("#clscroll-row-headers").scrollTop());
+    });
+  }
+
+  public onDateSelected(date, datePikcerType) {
+    switch (datePikcerType) {
+      case 'from_date':
+        this.searchModel['exceptionFromDate'] = date;
+        break;
+      case 'to_date':
+        this.searchModel['exceptionToDate'] = date;
+        break;
+    }
+  }
+
+  public submit() {
+    const formValue = { ...this.searchModel };
+    /** If propType blank assume propType=[] else propType selected value as array. */
+    formValue['propType'] == 'A' ? formValue['propType'] = [] : formValue['propType'] = [formValue['propType']];
+    this.isMandatoryWrong = false;
+    if (formValue['exceptionFromDate']) {
+      this.isFromDate = false;
+      if (!this.validateTodayDate(formValue['exceptionFromDate'])) {
+        /** If left blank assume Exception To Date = Exception From Date.  */
+        formValue['exceptionToDate'] == undefined ? formValue['exceptionToDate'] = formValue['exceptionFromDate'] : formValue['exceptionToDate'] = formValue['exceptionToDate'];
+        this.isToDate=false;    
+        if (!this.validateTodayDate(formValue['exceptionToDate'])){
+          this.isValid=false;
+          if(new Date(formValue['exceptionFromDate']).getTime() <= new Date(formValue['exceptionToDate']).getTime()){
+            this.reversalExceptionService.unProcessedReversal(formValue).subscribe(response => {
+              this.errorMessage=null;
+              if (response.item2 == 'Success') {
+                this.updateReasonForException(response.item1);
+                this.reversalExceptionResponse = response.item1;
+                this.verticalHorizontalScrollConfig();
+              } else {
+                this.reversalExceptionResponse = [];
+                this.errorMessage=response.item2;
+              }
+            }, (err) => { })
+          }else{
+            this.isValid=true;
+          }
+        }else{
+          this.isToDate=true;
+        }
+      }else{
+        this.isFromDate=true;
+      }
+
+    } else {
+      this.isMandatoryWrong = true;
+    }
+
+  }
+
+  private validateTodayDate(date) {
+    //  new Date().getTime() >= new Date(formValue['exceptionFromDate']).getTime() ?  t//his.isToDate=false : this.isToDate=true; retrun null;
+    if (new Date().getTime() >= new Date(date).getTime()) {
+//this.isFromDate = false
+      return false;
+    } else {
+   //   this.isFromDate = true;
+      return true;
+      
+    }
+  //  return this.isFromDate;
+  }
+  private updateReasonForException(listResponse) {
+    listResponse.map(item => {
+      item['isAlready'] = item.handled;
+      /** Used for sort handle column */
+      item['isHandledSort'] = item.handled ? 1 : 0;
+      item.handled = false;
+      if (item.handled) {
+        this.selectedReasonsList.push({
+          id: item.id,
+          reason: item.reason
+        })
+      }
+    })
+  }
+  addReason(item) {
+    if (item.handled) {
+      if (this.selectedReasonsList.length) {
+        const itemIndex = this.selectedReasonsList.findIndex(items => items.id == item.id);
+        this.selectedReasonsList.splice(itemIndex, 1);
+      }
+      item.handled = false;
+    } else {
+      this.selectedReasonsList.push({
+        id: item.id,
+        reason: item.reason
+      });
+      item.handled = true;
+    }
+  }
+
+  total() {
+    let sum = 0
+    if (this.reversalExceptionResponse.length) {
+      this.reversalExceptionResponse.map(item => {
+        sum += item.amount;
+      })
+    }
+    return sum;
+  }
+  public updateUnProcessed() {
+    this.selectedReasonsList = this.getUpdatedResonList();
+    this.reversalExceptionService.updateUnProcessed(this.selectedReasonsList).subscribe(response => {
+      this.submit();
+      this.selectedReasonsList = [];
+    }, err => {
+
+    })
+  }
+
+  getUpdatedResonList() {
+    if (this.reversalExceptionResponse.length) {
+      const updatedReason = [];
+      this.reversalExceptionResponse.map(item => {
+        if (item.handled) {
+          updatedReason.push({
+            id: item.id,
+            reason: item.reason
+          });
+        }
+      })
+      return updatedReason;
+    }
+  }
+  edit(object) {
+    const params = {
+      "paymentFiscalYear": object.rollYear,
+      "tracerNo": object.tracer,
+      "installNo": object.install,
+      "installPaymentId": null //object.id
+    }
+    this.commonService.savePaymentDetail(params);
+
+    this.router.navigate(['/paymentcorrection'], { queryParams: { page: 'payment' } });
+  }
+
+  downloadCSV() {
+    let csvData = this.downloadService.ConvertToCSV(this.reversalExceptionResponse, this.getTableColumnList());
+    this.downloadService.updateFileName('reversal-exception-report.csv');
+    this.downloadService.getBlobCSVData(csvData);
+  }
+  private getTableColumnList() {
+    const tableHeaderArrayList = [{
+      'item_id': 'exceptionDate',
+      'item_text': 'Exception Date'
+    }, {
+      'item_id': 'batch',
+      'item_text': 'Batch No.'
+    }, {
+      'item_id': 'apn',
+      'item_text': 'APN No.'
+    }, {
+      'item_id': 'tracer',
+      'item_text': 'Tracer No.'
+    }, {
+      'item_id': 'install',
+      'item_text': 'Install No.'
+    }, {
+      'item_id': 'taxType',
+      'item_text': 'Tax type'
+    }, {
+      'item_id': 'amount',
+      'item_text': 'Tax Amount'
+    }, {
+      'item_id': 'reason',
+      'item_text': 'Reason'
+    }];
+    return tableHeaderArrayList;
+  }
+
+  /**
+* 
+* @method setOrder 
+* @deprecated sort table colimn 
+* @param {any} skip 
+* @memberof PaymentLookupComponent
+*/
+  setOrder(value: string) {
+    if (this.order === value) {
+      this.reverse = !this.reverse;
+    }
+
+    this.order = value;
+  }
+
+  public convertDate(date){
+    let convertedDate=new Date(date);
+    return convertedDate;
+  }
+}

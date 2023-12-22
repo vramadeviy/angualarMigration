@@ -1,0 +1,74 @@
+<nav class="navbar box-shadow app-header" [class.fixed-top]="settings.theme.navbarIsFixed" [class.logo-visible]="showInfoContent">
+  <div class="d-flex flex-column w-200">
+    <div class="d-flex justify-content-start align-items-center top-navbar">
+  <!--
+    
+                   class="user-img rounded-circle">    padding-top: 60px;  style=" padding-bottom: 5px; 
+                nav_bar_img1 
+       
+       <p style=" font-size: 8px;  padding-left: 55px; padding-bottom: 5px;">
+                    <b>Welcome, Radha Gadiraju</b>
+                </p>
+    -->
+
+
+   
+
+ <a class="logo" routerLink="/" (click)="closeSubMenus()" style="width:auto !important">
+        <!-- <img src="assets/img/app/logo-taxtools.gif" alt="user-img" style="max-width:45px;padding-top: 0px;">
+               
+        <span class="start" style=" padding-top: 60px;"> TaxTools </span>
+        <span class="ng"  style=" padding-top: 60px;">Treasurer-Tax Collector</span> 
+      </a> -->
+      <span class="tax-tool-logo"><img src="assets/img/app/logo-taxtools.gif" alt="user-img" style="max-width:55px;padding-top: 0px;"></span>
+               &nbsp;&nbsp;
+  <span class="app-title">
+        <span class="start">TaxTools  &nbsp; &nbsp;
+          <span class="ng text-red" *ngIf="envType"><i>{{envType}}</i></span>
+        </span> <br>
+        <span class="ng">Treasurer-Tax Collector</span>
+        
+       
+  </span>
+</a>
+
+  
+
+
+     
+
+
+      <div class="top-rigth-icons ml-auto" style="display: flex; align-items: center">
+
+        <app-horizontal-menu *ngIf="showHorizontalMenu && menuItems" [menuItems]="menuItems"></app-horizontal-menu>
+        <div class="justify-content-end float-right">
+          <!-- <span class="hidden-xs-down">
+            <app-user-menu></app-user-menu>
+          </span> -->
+          <!-- <span class="pl-2 pr-2">
+            <a routerLink="/login">
+              <i class="fa fa-sign-out" aria-hidden="true"></i>
+            </a>
+          </span> -->
+          <span class="navbar-text menu-icon transition ml-3 mr-3" *ngIf="!showHorizontalMenu" [ngClass]="{'open': settings.theme.showMenu}" (click)="settings.theme.showMenu = !settings.theme.showMenu">
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+            <div class="line"></div>
+          </span>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="horizontal-menu-outer" *ngIf="settings.theme.menu == 'horizontal'">
+
+      <!-- <app-horizontal-menu *ngIf="showHorizontalMenu"  [menuItems]="menuItems"></app-horizontal-menu>         -->
+      <app-vertical-menu *ngIf="!showHorizontalMenu" [menuItems]="menuItems"></app-vertical-menu>
+
+    </div>
+
+
+
+  </div>
+</nav>

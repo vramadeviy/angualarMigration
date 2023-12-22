@@ -1,0 +1,142 @@
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { AppCommons } from '../../shared/app.commons';
+import { paymentSourcesData } from "./Tax-Collections-Data/payment-sources-data";
+import { TransactionRegisterService } from '../transaction-register/transaction-register.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+
+
+@Component({
+  selector: 'app-Tax-Collections-As-Payments.component',
+  templateUrl: './Tax-Collections-As-Payments.component.html',
+  styleUrls: ['./Tax-Collections-As-Payments.component.scss'],
+  providers: [AppCommons,TransactionRegisterService],
+  encapsulation: ViewEncapsulation.None
+})
+
+
+export class PaymentTaxCollectionComponent implements OnInit {
+  // public reportServer:string; // report srver URL
+  public reportUrl: string;   // report URL
+  language: string = "en-us"; // language support for report
+  width: number = 100;   // width of report 
+  height: number = 100;   // height f report
+  showParameters = "true";
+  parameters;
+  reportHistoryURL:SafeUrl;
+
+  reportHistoryResponse:any; //hold  report history response
+  isFormDateValid=false;
+  reportServer;
+  startCalenderDate = { month: new Date().getMonth() + 1, day: new Date().getDate() - 1, year: new Date().getFullYear() };
+
+
+  taxCollectionPaymentModel = {
+    'transactionFromDate': '',
+    'transactionToDate': '',
+    'paymentSource': ''
+  }
+  paymentSourceList: any = [];
+  paymentSourceListSelect:any='ALL';
+  constructor(
+    public appCommons: AppCommons,
+    private transactionRegisterService:TransactionRegisterService,
+    private domSanitizer:DomSanitizer) {
+    this.paymentSourceList = paymentSourcesData;
+    //console.log(" this.paymentSourceList=" + this.paymentSourceList);
+  }
+  ngOnInit() {
+    this.taxCollectionPaymentModel['transactionFromDate'] = this.appCommons.setPreviousDefaultDate();
+    this.taxCollectionPaymentModel['paymentSource'] = 'All';
+    this.getReportHistory();
+
+  }
+
+   /** Get report history response */
+   getReportHistory() {
+    let postParams = {
+      "fromDate": "06/01/2019",
+      "toDate": "07/08/2050",
+      "reportName": "Tax_Collections_Payment_Report",
+      "reportType": "NTT",
+      //"environment": "Dev"
+      "environment": "QA"
+      //"environment": "UAT"
+      // "environment": "PROD"
+    }
+    this.appCommons.showLoadingIocn();
+
+    this.transactionRegisterService.getReportHistory(postParams).subscribe(reportHistory => {
+      if (reportHistory.item2 === 'SUCCESS') {
+        this.reportHistoryResponse = reportHistory.item1;
+        this.appCommons.hideLoadingIcon();
+      }
+    }, (err: HttpErrorResponse) => {
+      this.appCommons.hideLoadingIcon();
+    })
+  }
+
+  /** click on table history table row */
+  getSelectedReportDetail(url) {
+    this.reportServer = '';
+    this.reportHistoryURL = this.domSanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+  onItemSelect(event) {
+  }
+  onSelectAll(event) { }
+
+  /**
+   * get daily batch report using transaction date & ref_id
+   * @param dailyBatchReportFilter 
+   */
+  //ssrsdev/Reports_SSRSTEST/Pages/Folder.aspx?ItemPath=%2fDevelopment%2fTaxTools&ViewMode=List
+  // http://ssrsdev/Reports_SSRSTEST/Pages/Report.aspx?ItemPath=%2fDevelopment%2fTaxTools%2fTax+Collections+Payment+Report 
+  getTransactionRegisterReport(taxCollectionPaymentModel,reportFilter) {
+    this.reportHistoryURL='';
+    let isFormDateValid=this.isValidDate('From');
+    if(!isFormDateValid){
+      this.reportServer = null;
+      setTimeout(() => {
+      this.reportServer = 'http://us01dws033/ReportServer/Pages/ReportViewer.aspx'
+        //this.reportUrl = 'Development/TaxTools/Tax_Collections_Payment_Report';
+       this.reportUrl = 'System Test/TaxTools/Tax_Collections_Payment_Report';
+       // this.reportUrl = 'User Acceptance/TaxTools/Tax_Collections_Payment_Report';
+        this.showParameters = "true";
+        this.parameters = {
+          "REPORT_DEFINITION_ID": 4,
+          "P_Payment_Source": taxCollectionPaymentModel['paymentSource'],
+          //"P_Payment_Source":'',
+          "P_Transaction_Date_From": taxCollectionPaymentModel['transactionFromDate'],
+          "P_Transaction_Date_To": taxCollectionPaymentModel['transactionToDate']?taxCollectionPaymentModel['transactionToDate']:taxCollectionPaymentModel['transactionFromDate']
+          // 
+        };
+      })
+    }
+  }
+  public onSelectNotify(date, key) {
+    switch (key) {
+      case 'From':
+        this.taxCollectionPaymentModel['transactionFromDate'] = date;
+        break;
+      case 'To':
+        this.taxCollectionPaymentModel['transactionToDate'] = date;
+        break;
+    }
+  }
+  public isValidDate(key) {
+    switch (key) {
+      case 'From':
+        if(this.taxCollectionPaymentModel['transactionToDate']){
+          this.isFormDateValid=false;
+          if(new Date(this.taxCollectionPaymentModel['transactionFromDate'])>new Date(this.taxCollectionPaymentModel['transactionToDate'])){
+            this.isFormDateValid=true;
+            return this.isFormDateValid;
+          }
+          return this.isFormDateValid;
+        }
+        break;
+      case 'To':
+        break;
+    }
+  }
+}

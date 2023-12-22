@@ -1,0 +1,68 @@
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { TransactionRegisterService } from '../transaction-register/transaction-register.service';
+import { AppCommons } from '../../shared/app.commons';
+import { environment } from 'environments/environment';
+import { HttpErrorResponse } from '@angular/common/http';
+import { DomSanitizer } from '@angular/platform-browser';
+
+@Component({
+  selector: 'app-year-end-supplemental-report',
+  templateUrl: './year-end-supplemental-report.component.html',
+  styleUrls: ['./year-end-supplemental-report.component.scss'],
+  providers: [TransactionRegisterService, AppCommons],
+  encapsulation: ViewEncapsulation.None
+})
+export class YearEndSupplementalReportComponent implements OnInit {
+
+  reportHistoryResponse = [];
+  dailyBatchReportFilter = {};
+  startCalenderDate: any;
+  calendarMinDate: any;
+  public reportUrl: string;   // report URL
+  language: string = "en-us"; // language support for report
+  width: number = 100;   // width of report 
+  height: number = 100;
+  reportHistoryURL: any;
+  reportServer: string;
+  constructor(private transactionRegisterService: TransactionRegisterService, public appCommons: AppCommons, private domSanitizer: DomSanitizer) { }
+
+  ngOnInit() {
+    this.initializeDefaultValues();
+    this.getReportHistory();
+  }
+
+  initializeDefaultValues() {
+    this.startCalenderDate = { month: new Date().getMonth() + 1, day: new Date().getDate() - 1, year: new Date().getFullYear() };
+    this.calendarMinDate = { month: 7, day: 2, year: 2018 };
+    this.startCalenderDate = this.appCommons.getCurrentData();
+    this.dailyBatchReportFilter['transactionDate'] = this.appCommons.setPreviousDefaultDate()
+  }
+
+  /** Get report history response */
+  getReportHistory() {
+
+    let postParams = {
+      "fromDate": "06/01/2019",
+      "toDate": "07/09/2050",
+      "reportName": "Year_End_Supp_Pending_Paid_Report",
+      "reportType": "NTT",
+      "environment": environment.currentEnvironment
+    }
+    this.appCommons.showLoadingIocn();
+
+    this.transactionRegisterService.getReportHistory(postParams).subscribe(reportHistory => {
+      if (reportHistory.item2 === 'SUCCESS') {
+        this.reportHistoryResponse = reportHistory.item1;
+        this.appCommons.hideLoadingIcon();
+      }
+    }, (err: HttpErrorResponse) => {
+      this.appCommons.hideLoadingIcon();
+    })
+  }
+
+  /** click on table history table row */
+  getSelectedReportDetail(url) {
+    this.reportServer = ''; 
+    this.reportHistoryURL = this.domSanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+}

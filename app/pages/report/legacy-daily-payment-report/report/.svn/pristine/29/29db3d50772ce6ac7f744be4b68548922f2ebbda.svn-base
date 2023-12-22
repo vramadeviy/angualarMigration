@@ -1,0 +1,48 @@
+@import '../../../theme/styles/table';
+.daily-payment-report {
+  .filter-container {
+    .flex-layout {
+      display: flex;
+      .form-field {
+        margin-left: 7px;
+      }
+    }
+  }
+  .report-wrapper {
+    margin-top: 20px;
+    height: 550px;
+  }
+  .report-history-detail {
+    .pane-hScroll {
+      width: 77%;
+    }
+    .preference-table-header {
+      th {
+        padding: 5px;
+        height: auto;
+      }
+    }
+    .pane-vScroll {
+      overflow: auto;
+      height: 200px;
+      &::-webkit-scrollbar {
+        width: 9px;
+        height: 22px;
+      }
+      tr {
+        height: auto !important;
+        td {
+          padding: 5px !important;
+        }
+      }
+    }
+  }
+}
+ //.main-content {
+//   width: 100%;
+   //height: 800px;
+//   padding: 20px;
+//   //  -webkit-box-flex: 1;
+//   //  min-height: calc(100vh - (66px + 28px));
+//    overflow: auto;
+//}

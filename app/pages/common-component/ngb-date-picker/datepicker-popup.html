@@ -1,0 +1,11 @@
+<div class="input-group ngbDatepicker-wrapper">
+  <input class="form-control" (dblclick)="dp.close()" (click)="onClick(dp)" placeholder="MM/DD/YYYY" style="display: none" ngModel
+    [disabled]="disabled" [id]="controlName" [minDate]="minDateKey" [maxDate]="maxDateKey" [name]="controlName" [(ngModel)]="datePickerKey"
+    [firstDayOfWeek]="7" [required]="required" ngbDatepicker #dp="ngbDatepicker" (ngModelChange)="onDateChange($event)">
+  <input class="form-control" placeholder="MM/DD/YYYY" [tabindex]="tabIndex" [id]="controlName" (click)="toggleNgDatepicker(dp)"
+    [required]="required" [name]="controlName" [disabled]="disabled" [ngModel]="selectedDateKey" onkeyup="this.value=this.value.replace(/^(\d\d)(\d)$/g,'$1/$2').replace(/^(\d\d\/\d\d)(\d+)$/g,'$1/$2').replace(/[^\d\d\d\d\/]/g,'')"
+    (ngModelChange)="onDateChange($event)">
+  <span class="input-group-addon" [id]="controlName" (click)="onClick(dp)">
+    <i class="fa fa-calendar"></i>
+  </span>
+</div>

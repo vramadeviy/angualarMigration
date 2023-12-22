@@ -1,0 +1,68 @@
+.reversal-exception-list-container{
+  .search-wrapper {
+    display: flex;
+    align-items: center;
+    .from-date {
+      width: 220px;
+    }
+    .to-date {
+      width: 220px;
+    }
+    .action-wrapper {
+      margin-top: 27px;
+    }
+  }
+}
+
+.reversal-exception-report{
+  margin-top: 20px;
+  table {
+    table-layout: fixed;
+    width: 100%;
+  }
+  .table-striped tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  .table-content .outer-table:nth-of-type(odd) {
+    background-color: #b7d7e8; //#cfe1f13d;
+  }
+  .table-content .outer-table:nth-of-type(even) {
+    background-color: #ddeedd; //#FFFAF0 !important; // rgb(105, 29, 29)  #e2f0c7b1
+  }
+  td,
+  th {
+    border: 1px solid #f3f3f3;
+    overflow: hidden;
+    padding: 0.75rem;
+    width: 168px;
+  }
+  
+  .column-headers {
+    overflow: hidden;
+  }
+  
+  .row-headers {
+    height: 81px;
+    overflow: hidden;
+    position: absolute;
+  }
+  
+  .column-headers {
+    background: darkslateblue; //#191970; // #32967e;//#fe9700;
+    color: #fff;
+  }
+  
+  .table-content {
+    height: 500px;
+    overflow: scroll;
+  }
+}
+.hidden{
+  visibility: hidden;
+}
+.active{
+  visibility: visible;
+}
+.right-justified{
+  text-align: right;
+}

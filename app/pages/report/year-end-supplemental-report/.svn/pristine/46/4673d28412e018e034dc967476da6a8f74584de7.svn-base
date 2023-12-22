@@ -1,0 +1,22 @@
+import { NgModule } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { YearEndSupplementalReportComponent } from './year-end-supplemental-report.component';
+import { SSRSReportViewerModule } from 'ngx-ssrs-reportviewer';
+import { RouterModule } from '@angular/router';
+
+
+const routes = [
+  { path: '', component: YearEndSupplementalReportComponent, pathMatch: 'full' }
+];
+@NgModule({
+  imports: [
+    CommonModule,
+    SSRSReportViewerModule,
+    RouterModule.forChild(routes),
+  ],
+  declarations: [YearEndSupplementalReportComponent]
+})
+export class YearEndSupplementalReportModule { }
+
+// use this in the drop down in UI
+// Year-End Supplemental Pending Paid Report 

@@ -1,0 +1,171 @@
+<div class="reversal-exception-list-container">
+  <form #reversalSearchForm="ngForm">
+    <div class="search-wrapper">
+      <div class="from-date">
+        <label class="col-form-label">Exception From Date
+          <span class="text-danger font-weight-bold" aria-required="true">*</span>
+        </label>
+        <ngb-datepicker-popup [tabIndex]="1" [selectedDateKey]="searchModel['exceptionFromDate']" controlName="exceptionFromDate"
+          [maxDateKey]="startCalenderDate" (clear)="clearNgModelValue()" (notify)="onDateSelected($event, 'from_date')"></ngb-datepicker-popup>
+          <div class="error-section">
+          <ng-container *ngIf="(isMandatoryWrong && !searchModel['exceptionFromDate'])" >
+              From Date is a required field
+          </ng-container>
+          <ng-container *ngIf="isFromDate" >
+              From Date cannot be a future date
+          </ng-container>
+          </div>
+        
+      </div>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <div class="to-date">
+        <label class="col-form-label">Exception To Date</label>
+        <ngb-datepicker-popup [tabIndex]="2" [selectedDateKey]="searchModel['exceptionToDate']" controlName="exceptionToDate" [maxDateKey]="startCalenderDate"
+          [minDateKey]="searchModel['exceptionFromDate']" (clear)="clearNgModelValue()" (notify)="onDateSelected($event, 'to_date')"></ngb-datepicker-popup>
+          <div class="error-section">
+              <ng-container *ngIf="isToDate" >
+                  To Date cannot be a future date
+              </ng-container>
+              <ng-container *ngIf="isValid" >
+                  From Date must be less than or equal to To Date
+              </ng-container>
+          </div>
+      </div>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <div class="to-date">
+        <label class="col-form-label">Exception Status</label>
+        <!-- <select class="form-control"></select> -->
+        <select class="form-control" aria-placeholder="exception status" [(ngModel)]="searchModel.status" #status="ngModel" name="status">
+          <!-- <option selected>select exception status</option> -->
+          <option [value]="exception.value" *ngFor="let exception of exceptionTypeList">{{exception.label}}</option>
+        </select>
+        <div class="error-section"></div>
+      </div>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <div class="to-date">
+        <label class="col-form-label">Tax Type</label>
+        <select class="form-control" [(ngModel)]="searchModel.propType" #propType="ngModel" name="propType">
+          <!-- <option [ngValue]="undefined" disabled selected>All</option> -->
+
+          <option [value]="exception.value" *ngFor="let exception of taxTypeList">{{exception.label}}</option>
+        </select>
+        <div class="error-section"></div>
+      </div>
+
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <div class="action-wrapper">
+        <button class="btn btn-primary w-100p p-05" tabindex="4" (click)="submit()">Search</button>
+        <div class="error-section"></div>        
+      </div>
+    </div>
+  </form>
+
+<div class="error-msg pt-3 pb-3" *ngIf="errorMessage">{{errorMessage}}</div>
+  <div class="reversal-exception-report hidden" [ngClass]="{'active':reversalExceptionResponse?.length>0}">
+    <div class="column-headers" id="clscroll-column-headers" style="overflow-y: scroll; overflow-x: hidden;">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 80px;"></th>
+            <th (click)="setOrder('exceptionDate')">
+                <i class="sorting-class fa" style="float:right" *ngIf="order =='exceptionDate'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+                Exception Date
+              </th>
+            <th (click)="setOrder('batch')">
+                <i class="sorting-class fa" style="float:right" *ngIf="order =='batch'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+                Batch No
+              </th>
+            <th (click)="setOrder('apn')">
+                <i class="sorting-class fa" style="float:right" *ngIf="order =='apn'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+                APN</th>
+            <th (click)="setOrder('tracer')">
+                <i class="sorting-class fa" style="float:right" *ngIf="order =='tracer'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+                Tracer No</th>
+            <th style="width: 140;" (click)="setOrder('install')">
+              Install No
+              <i class="sorting-class fa" style="float:right" *ngIf="order =='install'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+            <th (click)="setOrder('taxType')">
+                <i class="sorting-class fa" style="float:right" *ngIf="order =='taxType'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+                Tax type</th>
+
+
+            <th (click)="setOrder('amount')">Total Amount
+                <i class="sorting-class fa" style="float:right" *ngIf="order =='amount'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+            <th style="width: 300px;" (click)="setOrder('reason')">
+                <i class="sorting-class fa" style="float:right" *ngIf="order =='reason'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+                Reason for Exception</th>
+            <th (click)="setOrder('isHandledSort')">
+                <i class="sorting-class fa" style="float:right" *ngIf="order =='isHandledSort'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+                Exception Handled</th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+    <div class="table-content" id="clscroll-content">
+      <table class="table-striped box table-bordered outer-table" *ngFor="let item of reversalExceptionResponse | orderBy: order:reverse:'case-insensitive'">
+        <tr>
+          <td style="width: 80px;">
+            <span class="d-inline" *ngIf="item.edit" (click)="edit(item)">
+              <i class="fa fa-pencil"></i>
+            </span>
+          </td>
+          <td>{{convertDate(item.exceptionDate) | date: 'MM/dd/yyyy'}}</td>
+          
+          <td>{{item.batch}}</td>
+          <td>{{item.apn}}</td>
+          <td>{{item.tracer}}</td>
+          <td style="width: 140;" class="right-justified">{{item.install}}</td>
+          <td>{{item.taxType}}</td>
+          <td class="right-justified">${{item.amount}}</td>
+          <td style="width: 300px;">
+            <ng-container *ngIf="!item.handled">{{item.reason}}</ng-container>
+            <ng-container *ngIf="item.handled">
+              <input type="text" class="form-control" #reason="ngModel" [(ngModel)]="item.reason" name="reason" />
+              <span class="error"  style="font-size:12px" style="font-weight: bold;" >Enter a reason for setting exception to handled. </span>
+            </ng-container>
+
+          </td>
+          <td>
+            <ng-container *ngIf="!item.isAlready">
+              <input type="checkbox" class="form-control" (change)="addReason(item)" [checked]="item.handled" />
+            </ng-container>
+            <ng-container *ngIf="item.isAlready">
+              <input type="checkbox" class="form-control" disabled [checked]="item.isAlready" />
+             
+            </ng-container>
+          </td>
+        </tr>
+
+      </table>
+
+      <table class="table-striped box table-bordered outer-table">
+        <tr>
+          <td style="width: 80px;">Total</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td style="width: 140;"></td>
+          <td class="right-justified">${{total().toFixed(2)}}</td>
+          <td style="width: 300px;"></td>
+          <td></td>
+        </tr>
+      </table>
+    </div>
+    <div class="action-footer-wrapper p-3 d-flex justify-content-between align-items-center">
+      <div class="xml">
+        <span *ngIf="reversalExceptionResponse.length" (click)="downloadCSV()">
+          <i class="fa fa-file-excel-o fon" style="font-size: 20px;" aria-hidden="true"></i>
+        </span>
+      </div>
+      <div class="update">
+        <button class="btn btn-primary w-100p p-05" (click)="updateUnProcessed()" [disabled]="selectedReasonsList.length<=0">Update</button>
+      </div>
+    </div>
+  </div>
+</div>

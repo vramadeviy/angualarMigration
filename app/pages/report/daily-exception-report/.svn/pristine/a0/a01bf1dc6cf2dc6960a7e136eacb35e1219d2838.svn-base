@@ -1,0 +1,67 @@
+import {
+  Component,
+  OnInit,
+  ViewEncapsulation
+} from "@angular/core";
+
+import * as $ from 'jquery';
+import { environment } from "environments/environment";
+import { HttpErrorResponse } from "@angular/common/http";
+import { TransactionRegisterService } from "../transaction-register/transaction-register.service";
+import { AppCommons } from "../../shared/app.commons";
+import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
+// declare var $: any;
+@Component({
+  selector: "app-daily-exception-report",
+  templateUrl: "./daily-exception-report.component.html",
+  styleUrls: ["./daily-exception-report.component.scss"],
+  encapsulation: ViewEncapsulation.None,
+  providers: [TransactionRegisterService, AppCommons]
+})
+export class DailyExceptionReportComponent implements OnInit {
+  searchModel: any = {};
+  reportHistoryResponse = [];
+  reportHistoryURL: SafeUrl;
+  constructor(private transactionRegisterService: TransactionRegisterService, private appCommons: AppCommons, private domSanitizer: DomSanitizer) { }
+
+  ngOnInit() {
+    this.initValues();
+  }
+
+  initValues() {
+    // this.searchModel['']
+  }
+
+  onDateSelected(date, type) {
+    switch (type) {
+      case 'from_date':
+        this.searchModel['from_date'] = date;
+        break;
+      case 'to_date':
+        this.searchModel['to_date'] = date;
+        break;
+    }
+  }
+
+  onSubmit() {
+    const postParams = {
+      "fromDate": this.searchModel['from_date'],
+      "toDate": this.searchModel['to_date'],
+      "reportName": "Daily_Pending_Payments_Report",
+      "reportType": "NTT",
+      "environment": environment.currentEnvironment
+    };
+    this.transactionRegisterService.getReportHistory(postParams).subscribe(reportHistory => {
+      if (reportHistory.item2 === 'SUCCESS') {
+        this.reportHistoryResponse = reportHistory.item1;
+        this.appCommons.hideLoadingIcon();
+      }
+    }, (err: HttpErrorResponse) => {
+      this.appCommons.hideLoadingIcon();
+    })
+  }
+
+  getSelectedReportDetail(URL) {
+    this.reportHistoryURL = this.domSanitizer.bypassSecurityTrustResourceUrl(URL);
+  }
+}

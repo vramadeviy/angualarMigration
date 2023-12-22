@@ -1,0 +1,139 @@
+import {
+  Component,
+  OnInit,
+  ViewEncapsulation
+} from "@angular/core";
+
+import * as $ from 'jquery';
+import { environment } from "environments/environment";
+import { HttpErrorResponse } from "@angular/common/http";
+import { TransactionRegisterService } from "../transaction-register/transaction-register.service";
+import { AppCommons } from "../../shared/app.commons";
+import { DomSanitizer, SafeUrl } from "@angular/platform-browser";
+import { GlobalTaxToolService } from "../../_service/global-taxtools-service";
+// declare var $: any;
+@Component({
+  selector: "app-daily-exception-report",
+  templateUrl: "./daily-exception-report.component.html",
+  styleUrls: ["./daily-exception-report.component.scss"],
+  encapsulation: ViewEncapsulation.None,
+  providers: [TransactionRegisterService, AppCommons]
+})
+export class DailyExceptionReportComponent implements OnInit {
+  searchModel: any = {};
+  reportHistoryResponse = [];
+  reportHistoryURL: SafeUrl;
+  errorMsg: string;
+  startCalenderDate = { month: new Date().getMonth() + 1, day: new Date().getDate(), year: new Date().getFullYear() };
+  public isToDateValid = false;
+  public isFromDateValid = false;
+
+  constructor(private transactionRegisterService: TransactionRegisterService, private appCommons: AppCommons, private domSanitizer: DomSanitizer, private _globalService: GlobalTaxToolService) { }
+
+  ngOnInit() {
+    this.initValues();
+    this.getDefaultReport()
+  }
+  public onDateSelected(date, key) {
+    switch (key) {
+        case 'from_date':
+            this.searchModel['from_date'] = date;
+            if (this.searchModel['to_date']) {
+                this.isFromDateValid = false;
+                if (new Date(this.searchModel['from_date']) > new Date(this.searchModel['to_date'])) {
+                  this.isFromDateValid = true;
+                }
+                if (this.searchModel['from_date']) {
+                  this.isFromDateValid = false;
+                  this.isToDateValid = false;
+                  if (new Date(this.searchModel['from_date']) > new Date(this.searchModel['to_date'])) {
+                    this.isFromDateValid = true;
+                    this.isToDateValid = false;
+                  }
+                }
+              }
+            break;
+        case 'to_date':
+            this.searchModel['to_date'] = date;
+            if (this.searchModel['from_date']) {
+                this.isFromDateValid = false;
+                this.isToDateValid = false;
+                if (new Date(this.searchModel['from_date']) > new Date(this.searchModel['to_date'])) {
+                  this.isToDateValid = true;
+                }
+              }
+              if (this.searchModel['toDate']) {
+                this.isToDateValid = false;
+                if (new Date(this.searchModel['fromDate']) > new Date(this.searchModel['toDate'])) {
+                  this.isToDateValid = true;
+                }
+              }
+            break;
+    }
+}
+
+  private getDefaultReport() {
+    const postParams = {
+      "fromDate": "06/01/2019",
+      "toDate": "07/08/2050",
+      "reportName": "Daily_Exception_Report",
+      "reportType": "NTT",
+      "environment": environment.currentEnvironment
+    };
+    this.getReportHistory(postParams);
+  } initValues() {
+    // this.searchModel['']
+    // const date = new Date();
+    // date.setDate(date.getDate() - 1);
+    // const previousDay = date;
+    var _item = this._globalService.getData();
+    const myProfileInfo = _item;
+    const previousDay = myProfileInfo['previousDay'];
+   // this.searchModel['from_date'] = this.FormatDateString(previousDay);
+  }
+  FormatDateString(value) {
+    var retPrevDate;
+    let newtDate = new Date(value);
+
+    return newtDate.getMonth() + 1 + '/' + newtDate.getDate() + '/' + newtDate.getFullYear();
+  }
+
+  // onDateSelected(date, type) {
+  //   switch (type) {
+  //     case 'from_date':
+  //       this.searchModel['from_date'] = date;
+  //       break;
+  //     case 'to_date':
+  //       this.searchModel['to_date'] = date;
+  //       break;
+  //   }
+  // }
+
+  onSubmit() {
+    const postParams = {
+      "fromDate": this.searchModel['from_date'],
+      "toDate": this.searchModel['to_date'] ? this.searchModel['to_date'] : this.searchModel['from_date'],
+      "reportName": "Daily_Exception_Report",
+      "reportType": "NTT",
+      "environment": environment.currentEnvironment
+    };
+    this.getReportHistory(postParams)
+  }
+
+  private getReportHistory(postParams) {
+    this.transactionRegisterService.getReportHistory(postParams).subscribe(reportHistory => {
+      if (reportHistory.item2 === 'SUCCESS') {
+        this.reportHistoryResponse = reportHistory.item1;
+        this.appCommons.hideLoadingIcon();
+      } else {
+        this.reportHistoryResponse = [];
+        this.errorMsg = reportHistory.item2;
+      }
+    }, (err: HttpErrorResponse) => {
+      this.appCommons.hideLoadingIcon();
+    })
+  }
+  getSelectedReportDetail(URL) {
+    this.reportHistoryURL = this.domSanitizer.bypassSecurityTrustResourceUrl(URL);
+  }
+}

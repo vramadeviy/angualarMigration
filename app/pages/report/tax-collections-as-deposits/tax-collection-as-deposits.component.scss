@@ -1,0 +1,24 @@
+@import '../../../theme/styles/table';
+.text-align-center{display: flex;align-self: center}
+.tax-collection-deposit-wrapper{
+
+.tax-collection-report-container{
+    border: 0px 1px 1px 1px solid #7C93A7;
+
+}
+.report-details-wrapper  {
+    margin-top: 20px;
+      height: 550px;
+    }
+  
+.flex-end{
+    display: flex;
+    justify-content: flex-end;
+}
+.flex-layout {
+    display: flex;
+    .form-field {
+      margin-left: 7px;
+    }
+  }
+}

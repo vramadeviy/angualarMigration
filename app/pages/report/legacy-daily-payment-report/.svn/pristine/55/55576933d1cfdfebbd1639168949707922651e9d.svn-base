@@ -1,0 +1,129 @@
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { AppCommons } from '../../shared/app.commons';
+import { LegacyDailyPaymentService } from './legacy-daily-payment.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { SafeUrl, DomSanitizer } from '@angular/platform-browser';
+import { environment } from 'environments/environment';
+
+@Component({
+    selector: 'app-legacy-daily-payment-report',
+    templateUrl: './legacy-daily-payment-report.component.html',
+    styleUrls: ['./legacy-daily-payment-report.component.scss'],
+    providers: [AppCommons,LegacyDailyPaymentService ],
+    encapsulation: ViewEncapsulation.None
+})
+export class LegacyDailyPaymentReportComponent {
+    reportServer;
+    reportHistoryURL:SafeUrl;
+    noRecordMsg;
+    legacyReportFilter: any = {
+        fromDate: '',
+        toDate: ''
+    }
+    isFromDateValid:boolean=false;
+    isToDateValid:boolean=false;
+
+    constructor(private appCommons: AppCommons,private legacyDailyPaymentService: LegacyDailyPaymentService, private domSanitizer: DomSanitizer) { }
+    reportHistoryResponse: any;
+    lastFewDaysHistoryResponse:any;
+    public onSelectNotify(date, key) {
+        switch (key) {
+            case 'From':
+                this.legacyReportFilter['fromDate'] = date;
+                if (this.legacyReportFilter['toDate']) {
+                    this.isFromDateValid = false;
+                    if (new Date(this.legacyReportFilter['fromDate']) > new Date(this.legacyReportFilter['toDate'])) {
+                      this.isFromDateValid = true;
+                    }
+                    if (this.legacyReportFilter['fromDate']) {
+                      this.isFromDateValid = false;
+                      this.isToDateValid = false;
+                      if (new Date(this.legacyReportFilter['fromDate']) > new Date(this.legacyReportFilter['toDate'])) {
+                        this.isFromDateValid = true;
+                        this.isToDateValid = false;
+                      }
+                    }
+                  }
+                break;
+            case 'To':
+                this.legacyReportFilter['toDate'] = date;
+                if (this.legacyReportFilter['fromDate']) {
+                    this.isFromDateValid = false;
+                    this.isToDateValid = false;
+                    if (new Date(this.legacyReportFilter['fromDate']) > new Date(this.legacyReportFilter['toDate'])) {
+                      this.isToDateValid = true;
+                    }
+                  }
+                  if (this.legacyReportFilter['toDate']) {
+                    this.isToDateValid = false;
+                    if (new Date(this.legacyReportFilter['fromDate']) > new Date(this.legacyReportFilter['toDate'])) {
+                      this.isToDateValid = true;
+                    }
+                  }
+                break;
+        }
+    }
+ /** 
+     * Get legacy details
+    */
+    getReportHistory(object, formObject) {
+        let postParams = {
+          "fromDate": object['fromDate'],
+          "toDate": object['toDate'],
+          "reportName": "Daily_Payment_Report_Snapshot",
+          "reportType": "LTT",
+          //"environment": "Dev"
+         // "environment": "QA"
+         // "environment": "UAT"
+          // "environment": "PROD"
+          "environment": environment.currentEnvironment
+        }
+        this.appCommons.showLoadingIocn();
+        this.fetchHttpResponse(postParams,false);
+    }
+
+    private fetchHttpResponse(postParams,isFewRecord=false){
+      this.appCommons.hideLoadingIcon();
+      this.noRecordMsg=null
+      this.legacyDailyPaymentService.getReportHistory(postParams).subscribe(reportHistory => {
+        if (reportHistory.item2 === 'SUCCESS') {
+          this.lastFewDaysHistoryResponse=reportHistory.item1;
+          isFewRecord? this.lastFewDaysHistoryResponse=reportHistory.item1: this.reportHistoryResponse=reportHistory.item1
+        }else{
+          this.lastFewDaysHistoryResponse=null;
+          this.noRecordMsg=reportHistory.item2;
+        }
+      }, (err: HttpErrorResponse) => {
+      })
+    }
+    
+    /** click on table history table row */
+ getSelectedReportDetail(url) {
+    this.reportServer = '';
+    this.reportHistoryURL = this.domSanitizer.bypassSecurityTrustResourceUrl(url);
+  }
+  public onSelectedType(entry) {
+    this.legacyReportFilter['reportType'] = entry['reportType'];
+   // this.legacyReportFilter['dailyReportFrom'] = this.appCommons.setPreviousDefaultDate()
+   // this.selecteReportType == '1' ? this.dailyReportFilter['transactionDate'] = this.appCommons.setPreviousDefaultDate() : ''
+  }
+
+
+
+
+    ngOnInit() {
+      /** fetch last few history respone */
+      this.getLegacyHistoryResponse()
+    }
+    getLegacyHistoryResponse(){
+      let postParams = {
+        "fromDate":"", //"06/01/2019",
+        "toDate": "",
+        "reportName": "Daily_Payment_Report_Snapshot",
+        "reportType": "LTT",
+        "environment": environment.currentEnvironment
+      }
+      this.appCommons.showLoadingIocn();
+      this.fetchHttpResponse(postParams,true);
+    }
+}

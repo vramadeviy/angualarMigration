@@ -1,0 +1,11 @@
+{
+	"encodedJwtToken": "eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOiJjcGFrYWxhcGF0aSIsImp0aSI6Ijk4ZWRiMThiLTg2NzgtNGI2Yy05ODMzLTgzMTY5ZmViMmZkYSIsImlhdCI6MTUyMDM4NDE1MSwibmJmIjoxNTIwMzg0MTUwLCJleHAiOjE1MjA0MDU3NTB9.",
+	"expiresIn": 360,
+	"claims": [{
+		"type": "http://weburl.xmlsoap.org/ws/2005/05/identity/claims/name",
+		"value": "fname"
+	}, {
+		"type": "Screens",
+		"value": "23,24,22,21,20,41,40,42,10"
+	}]
+}

@@ -1,0 +1,51 @@
+@import '../../../theme/styles/table';
+.daily-exception-report-container {
+  .error-wrapper{
+    color: red;
+    font-weight: 600;
+    margin: 10px 0;
+    display: block;
+  }
+    .search-wrapper {
+      display: flex;
+      .from-date {
+        width: 220px;
+      }
+      .to-date {
+        width: 220px;
+      }
+      .action-wrapper {
+        margin-top: 27px;
+      }
+    }
+    .report-body-wrapper {
+      margin-top: 20px;
+      height: 560px;
+    }
+    .report-history-detail {
+      .pane-hScroll {
+        width: 77%;
+      }
+      .preference-table-header {
+        th {
+          padding: 5px;
+          height: auto;
+        }
+      }
+      .pane-vScroll {
+        overflow: auto;
+        height: 200px;
+        &::-webkit-scrollbar {
+          width: 9px;
+          height: 22px;
+        }
+        tr{
+          height: auto !important;
+          td {
+            padding: 5px !important;
+          }
+        } 
+      }
+    }
+  }
+  

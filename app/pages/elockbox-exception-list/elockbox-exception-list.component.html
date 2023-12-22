@@ -1,0 +1,240 @@
+<div class="elockbox-main-wrapper">
+  <div class="row filter-wrapper">
+    <form #filterReportForm="ngForm">
+      <div class="search-wrapper">
+        <div class="form-group" style="margin-bottom: 0rem;">
+          <label for="example-text-input" class="col-form-label">Exception From Date
+            <span class="text-danger font-weight-bold">*</span>
+          </label>
+          <div class="input-group">
+            <ngb-datepicker-popup [tabIndex]="1" [selectedDateKey]="searchModel['from_date']" controlName="fromDate" [maxDateKey]="startCalenderDate"
+              (clear)="clearNgModelValue()" (notify)="onDateSelected($event, 'from_date')" [required]="true"></ngb-datepicker-popup>
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 0rem;">
+          <label for="example-text-input" class="col-form-label">Exception To Date
+          </label>
+          <div class="input-group">
+            <ngb-datepicker-popup [tabIndex]="1" [selectedDateKey]="searchModel['to_date']" controlName="toDate" [minDateKey]="searchModel['from_date']"
+              [maxDateKey]="startCalenderDate" (clear)="clearNgModelValue()" (notify)="onDateSelected($event, 'to_date')"></ngb-datepicker-popup>
+          </div>
+          <div class="text-danger" *ngIf="isDateGreatherLessThanFromDate">
+              From Date must be less than To Date
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="example-text-input" class="col-form-label">Exception Status
+            <span class="text-danger font-weight-bold">*</span>
+          </label>
+          <select class="form-control w-dynamic" aria-placeholder="select Install No" name="status" [(ngModel)]="searchModel['status']"
+            #status="ngModel" required>
+            <option *ngFor="let status of statusList" [ngValue]="status.type">{{status.type}}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="example-text-input" class="col-form-label">Reason for Exception
+            <span class="text-danger font-weight-bold">*</span>
+          </label>
+          <select class="form-control w-dynamic" aria-placeholder="select Reason" name="reason" [(ngModel)]="searchModel['reason']"
+            #reason="ngModel" required>
+            <option *ngFor="let reason of reasonList" [ngValue]="reason.type">{{reason.type}}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="example-text-input" class="col-form-label">UBOC APN
+          </label>
+          <input type="text" [(ngModel)]="searchModel['uboc_apn']" name="uboc_apn" class="form-control" maxlength="15" /> 
+        </div>
+        <div class="form-group action">
+          <button class="btn btn-primary w-100p p-05" [disabled]="!(searchModel['from_date'])" (click)="onSubmit()">Search</button>
+        </div>
+      </div>
+    </form>
+
+
+  </div>
+  <div class="list-wrapper" *ngIf="exceptionListData && exceptionListData.length">
+    <div class="column-headers" id="clscroll-column-headers" style="overflow-y:scroll; overflow-x:hidden">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th style="width:40px">&nbsp;</th>
+            <th (click)="setOrder('exceptionDate')">
+               Exception Date&nbsp;
+               <i class="sorting-class fa" [title]="!reverse ? 'Ascending Order': 'Decending order'" *ngIf="order =='exceptionDate'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+              </th>
+            <th (click)="setOrder('uboC_APN')">
+              UBOC APN&nbsp;
+              <i class="sorting-class fa" [title]="!reverse ? 'Ascending Order': 'Decending order'" *ngIf="order =='uboC_APN'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+            <th (click)="setOrder('uboC_TracerNo')">
+              UBOC Tracer No.
+              <i class="sorting-class fa" [title]="!reverse ? 'Ascending Order': 'Decending order'" *ngIf="order =='uboC_TracerNo'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+            <th (click)="setOrder('uboC_BatchNo')">
+              UBOC Batch No.
+              <i class="sorting-class fa" [title]="!reverse ? 'Ascending Order': 'Decending order'" *ngIf="order =='uboC_BatchNo'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+            <th (click)="setOrder('uboC_PayerName')">
+              Payer Name
+              <i class="sorting-class fa" [title]="!reverse ? 'Ascending Order': 'Decending order'" *ngIf="order =='uboC_PayerName'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+            <th (click)="setOrder('uboC_PaymentAmount')">
+              Payment Amount
+              <i class="sorting-class fa" [title]="!reverse ? 'Ascending Order': 'Decending order'" *ngIf="order =='uboC_PaymentAmount'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+            <th (click)="setOrder('uboC_PaymentDate')">
+              Payment Date
+              <i class="sorting-class fa" [title]="!reverse ? 'Ascending Order': 'Decending order'" *ngIf="order =='uboC_PaymentDate'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+            <th (click)="setOrder('exception_Reason')">
+              Reason for Exception
+              <i class="sorting-class fa" [title]="!reverse ? 'Ascending Order': 'Decending order'" *ngIf="order =='exception_Reason'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+            <th (click)="setOrder('exceptionStatus')">
+              Exception Handled
+              <i class="sorting-class fa" [title]="!reverse ? 'Ascending Order': 'Decending order'" *ngIf="order =='exceptionStatus'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+            <th (click)="setOrder('action_Taken')">
+              Action taken
+              <i class="sorting-class fa" [title]="!reverse ? 'Ascending Order': 'Decending order'" *ngIf="order =='action_Taken'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+            <th (click)="setOrder('isComments')">Comments
+                <i class="sorting-class fa" [title]="!reverse ? 'Ascending Order': 'Decending order'" *ngIf="order =='isComments'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+            <th (click)="setOrder('resolvedBy')">
+              Resolved by
+              <i class="sorting-class fa" [title]="!reverse ? 'Ascending Order': 'Decending order'" *ngIf="order =='resolvedBy'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+            <th (click)="setOrder('resolvedDate')">
+              Resolved Date
+              <i class="sorting-class fa" [title]="!reverse ? 'Ascending Order': 'Decending order'" *ngIf="order =='resolvedDate'" [ngClass]="{'fa-angle-down':reverse==true,'fa-angle-up':!reverse}"></i>
+            </th>
+          </tr>
+        </thead>
+      </table>
+    </div>
+    <div class="table-content" id="clscroll-content">
+      <table class="table table-striped table-bordered">
+        <tbody>
+          <ng-container *ngFor="let item of exceptionListData | orderBy: order:reverse:'case-insensitive'; let i= index">
+            <tr>
+              <td style="width:40px">
+                <ng-container *ngIf="item.eLBBillInfo && item.eLBBillInfo.length">
+                  <ng-template #falsyTemplate>
+                    <i title="Show" class="fa fa-plus icon-control" (click)="toggleDetails(i,'expand')" aria-hidden="true" style="color:#3b4cab"></i>
+                  </ng-template>
+                  <i title="hide" *ngIf="expanded===i; else falsyTemplate" (click)="toggleDetails(i,'hide')" class="fa fa-minus icon-control"
+                    style="color:#3b4cab" aria-hidden="true"></i>
+                </ng-container>
+              </td>
+              <td>{{item.exceptionDate | date: 'MM/dd/yyyy'}}</td>
+              <td>{{item.uboC_APN}}</td>
+              <td>{{item.uboC_TracerNo}}</td>
+              <td>{{item.uboC_BatchNo}}</td>
+              <td>{{item.uboC_PayerName}}</td>
+              <td class="text-align-right">${{item.uboC_PaymentAmount | number:'1.2-2'}}</td>
+              <td>{{item.uboC_PaymentDate | date: 'MM/dd/yyyy'}}</td>
+              <td>{{item.exception_Reason}}</td>
+              <td>
+                <ng-container *ngIf="item.isTrue">
+                  <input type="checkbox" disabled class="form-control" [(ngModel)]="item.exceptionStatus" />
+
+                </ng-container>
+                <ng-container *ngIf="!item.isTrue">
+                  <input type="checkbox" class="form-control" (ngModelChange)="isExceptionStatusUpdate(item.exceptionStatus)" [(ngModel)]="item.exceptionStatus"
+                  />
+
+                </ng-container>
+              </td>
+              <td>
+                <select class="form-control" (ngModelChange)="isActionStatusUpdate(item)" [(ngModel)]="item.action_Taken"
+                  [disabled]="item.isActionTaken">
+                  <option *ngFor="let item of actionTakenList" [value]="item.type">{{item.type}}</option>
+                </select>
+              </td>
+              <td>
+                <ng-container *ngIf="item.action_Taken =='Other'">
+                  <input type="text" [(ngModel)]="item.comments" [disabled]="item.isComments" class="form-control" />
+                </ng-container>
+              </td>
+              <td>{{item.resolvedBy}}</td>
+              <td>{{item.resolvedDate | date: 'MM/dd/yyyy'}}</td>
+
+            </tr>
+            <tr *ngIf="expanded===i" [ngClass]="{'accordian-panel':expanded===i}">
+              <td style="padding-right:0;" colspan="10">
+                <div class="table-responsive-history">
+                  <table class="table table-bordered">
+                    <thead class="bg-primary inneer-table-history" style="  background:#0065b1;">
+                      <tr>
+                        <th style="width:40px !important;"></th>
+                        <th style="width:132px !important;"></th>
+                        <th>Tracer No</th>
+                        <th>Roll Year</th>
+                        <th>Tax type</th>
+                        <th>Install No</th>
+                        <th>Install Amount</th>
+                        <th>Payment Date</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr *ngFor="let details of item.eLBBillInfo">
+                        <td style="width:40px"></td>
+                        <td style="width:132px"></td>
+                        <td>{{details.tracerNo}}</td>
+                        <td>{{details.rollYear}}</td>
+                        <td>{{details.taxType}}</td>
+                        <td class="text-align-right">{{details.installmentNo}}</td>
+                        <td class="text-align-right" [ngClass]="{'text-danger': details.installmentAmount<0}">${{details.installmentAmount | number:'1.2-2'}}</td>
+                        <td>{{details.paymentDate | date: 'MM/dd/yyyy'}}</td>
+                        <td>{{details.paymentStatus}}</td>
+
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </td>
+            </tr>
+          </ng-container>
+
+        </tbody>
+      </table>
+      <table class="table-striped box table-bordered outer-table">
+        <tr>
+          <td style="width:40px !important;padding:0"></td>
+          <td>
+            <b>Total</b>
+          </td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td class="text-align-right">${{totalExceptionPaymentAmount | number:'1.2-2'}}</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+      </table>
+    </div>
+    <div class="footer">
+      <div class="action-footer-wrapper p-3 d-flex justify-content-between align-items-center">
+        <div class="xml">
+          <span (click)="downloadCSV()" class="cursor-pointer" title="Export">
+              <i aria-hidden="true" class="fa fa-table" style="font-size: 20px;"></i>&nbsp;Export
+          </span>
+        </div>
+        <div class="update">
+          <button class="btn btn-primary w-100p p-05" [disabled]="!(actionStatusUpdate)" (click)="updateElockbox()">Update</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <div class="text-danger m-2" *ngIf="!exceptionListData.length && errorMsg">{{errorMsg}}</div>
+</div>

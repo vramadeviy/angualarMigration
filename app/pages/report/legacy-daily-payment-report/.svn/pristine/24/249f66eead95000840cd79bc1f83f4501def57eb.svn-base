@@ -1,0 +1,51 @@
+<div class="legacy-report-wrapper">
+  <div class="filter-wrapper">
+    <fieldset>
+      <legend class="legend-border">Search Reports</legend>
+
+      <div class="row">
+        <div class="col-4">
+          <label class="form-control-lable">Report Date From 
+              <span class="text-danger font-weight-bold">*</span>
+          </label>
+          <ngb-datepicker-popup [(ngModel)]="legacyReportFilter.fromDate" [controlName]="'fromDate'" name="dailyReportFrom" ngDefaultControl></ngb-datepicker-popup>
+        </div>
+        <div class="col-4">
+          <label class="form-control-lable">Report Date To &nbsp; &nbsp;</label>
+          <div class="form-field">
+            <ngb-datepicker-popup [(ngModel)]="legacyReportFilter.toDate" name="taDate" [controlName]="'dailyReportTo'" ngDefaultControl></ngb-datepicker-popup>
+          </div>
+        </div>
+        <div class="col-4 d-inline-flex align-self-end">
+          <button class="btn btn-primary p-05">Search Report</button>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+
+  <div class="legacy-report-detail-wrapper mt-3">
+    <div class="pane pane-table-preference">
+      <div class="pane-hScroll">
+        <div class="pane-vHeaderScroll">
+          <table>
+            <thead class="preference-table-header fixed-order">
+              <th style="width:100px">Created Date/Time</th>
+              <th style="width:300px">Report Name</th>
+            </thead>
+          </table>
+        </div>
+        <div class="pane-vScroll pane-vScroll-static">
+          <table>
+            <tbody>
+              <tr>
+                <td class="handle" style="width:100px">Date</td>
+                <td class="handle" style="width:300px">Name
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+  </div>
+</div>
+</div>

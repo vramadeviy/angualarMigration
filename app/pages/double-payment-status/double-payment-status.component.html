@@ -1,0 +1,212 @@
+<div class="column-headers" id="clscroll-column-headers">
+  <table>
+    <tr>
+      <th style="width:60px"> </th>
+      <th class='handle'>Transaction Date</th>
+      <th class='handle'>Credit data</th>
+      <th class='handle'>APN no</th>
+      <th class='handle'>Tracer No.</th>
+      <th class='handle'>Install No.</th>
+      <th class='handle'>Payment Status</th>
+      <th class='handle'>Reason</th>
+      <th class='handle'>Created Date</th>
+      <th class='handle'>Tax Amount</th>
+      <th class='handle'>Penalty Amount</th>
+      <th class='handle'>Interest Amount</th>
+      <th class='handle'>Cost Amount</th>
+      <th class='handle'>Overage</th>
+      <th class='handle'>Payment Fiscal Year</th>
+      <th class='handle'>Tax Bill Fiscal Year</th>
+      <th class='handle'>Tax Type</th>
+      <th class='handle'>Batch No</th>
+      <th class='handle'>Teller No.</th>
+      <th class='handle'>NCR Sequence No.</th>
+      <th class='handle'>Check No.</th>
+      <th class='handle'>Payment Source</th>
+      <th class='handle'>Payment Method</th>
+      <th class='handle'>Updated By</th>
+      <th>Total Amount</th>
+    </tr>
+  </table>
+</div>
+<!-- <div class="row-headers" id="clscroll-row-headers">
+  <table>
+    <tr *ngFor="let object of lookupResult; let i = index">
+      <th>
+        {{object.transactionDate}}</th>
+    </tr>
+
+  </table>
+</div>  -->
+<div class="table-content" id="clscroll-content">
+  <table *ngFor="let object of lookupResult; let i = index">
+    <tr>
+      <td style="width:60px">
+         <a routerLink="/payment.correction" routerLink="/pages/paymentcorrection" title="Edit">
+          <i class="fa fa-pencil icon-control" aria-hidden="true"></i>
+
+        </a> 
+        <a role="button" (click)="toggleRow(i)" *ngIf="object.paymentHistory?.length >0" title="Payment History" data-toggle="collapse"
+          data-parent="#accordion" aria-expanded="true" aria-controls="collapseOne">
+
+          <ng-template #falsyTemplate>
+            <i class="fa fa-plus icon-control" aria-hidden="true" style="color:#3b4cab"></i>
+          </ng-template>
+          <i *ngIf="expanded===i; else falsyTemplate" class="fa fa-minus icon-control" style="color:#3b4cab" aria-hidden="true"></i>
+        </a>
+
+      </td>
+      <td>{{object.transactionDate}}</td>
+      <td>{{object.creditDate}}</td>
+      <td>{{object.apn}}</td>
+      <td>{{object.tracerNo}}</td>
+      <td>{{object.installNo}}</td>
+      <td>{{object.paymentStatus}}</td>
+      <td>{{object.reason}}</td>
+      <td>{{object.createdDate}}</td>
+      <td>{{object.taxAmountPaid}}</td>
+      <td>{{object.penaltyAmount}}</td>
+      <td>{{object.interestAmount}}</td>
+      <td>{{object.costAmount}}</td>
+      <td>{{object.returnCheckFee}}</td>
+      <td>{{object.paymentFiscalyear}}</td>
+      <td>{{object.taxBillFiscalYear}}</td>
+      <td>{{object.taxType}}</td>
+      <td>{{object.batchAgencyName}}</td>
+      <td>{{object.batchNo}}</td>
+      <td>{{object.tellerNo}}</td>
+      <td>{{object.ncrSequenceNo}}</td>
+      <td>{{object.checkNo}}</td>
+      <td>{{object.paymentSource}}</td>
+      <td>{{object.paymentMethod}}</td>
+      <td>{{object.createdBy}}</td>
+      <td>{{object.totalAmount}}</td>
+    </tr>
+    <tr *ngIf="expanded===i" [ngClass]="{'accordian-panel':expanded===i}">
+      <td colspan="24">
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead class="bg-primary">
+              <tr>
+                 <th styele="width:47px"></th> 
+                <th>Transaction Date</th>
+                <th>Credit data</th>
+                <th>APN No</th>
+                <th>Tracer No.</th>
+                <th>Install No.</th>
+                <th>Payment Status</th>
+                <th>Reason</th>
+                <th>Total Amount</th>
+                <th>Tax Amount</th>
+                <th>Penalty Amount</th>
+                <th>Interest Amount</th>
+                <th>Cost Amount</th>
+                <th>Payment Fiscal Year</th>
+                <th>Tax Bill Fiscal Year</th>
+                <th>Tax Type</th>
+                <th>Batch No.</th>
+                <th>Teller No.</th>
+                <th>NCR Sequence No.</th>
+                <th>Check No.</th>
+                <th>Payment Source</th>
+                <th>Payment Method</th>
+                <th>Created By</th>
+                <th>Created Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let object1 of object.paymentHistory">
+                <th styele="width:47px"></th> 
+                <td>{{object1.transactionDate}}</td>
+                <td>{{object1.creditDate}}</td>
+                <td>{{object1.apn}}</td>
+                <td>{{object1.tracerNo}}</td>
+                <td>{{object1.installNo}}</td>
+                <td>{{object1.paymentStatus}}</td>
+                <td>{{object1.reason}}</td>
+                <td>{{object1.totalAmount}}</td>
+                <td>{{object1.taxAmountPaid}}</td>
+                <td>{{object1.penaltyAmount}}</td>
+                <td>{{object1.interestAmount}}</td>
+                <td>{{object1.costAmount}}</td>
+                <td>{{object1.overage}}</td>
+                <td>{{object1.paymentFiscalyear}}</td>
+                <td>{{object1.taxBillFiscalYear}}</td>
+                <td>{{object1.taxType}}</td>
+                <td>{{object1.batchNo}}</td>
+                <td>{{object1.tellerNo}}</td>
+                <td>{{object1.ncrSequenceNo}}</td>
+                <td>{{object1.checkNo}}</td>
+                <td>{{object1.paymentSource}}</td>
+                <td>{{object1.paymentMethod}}</td>
+                <td>{{object1.createdBy}}</td>
+                <td>{{object1.createdDate}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </td>
+    </tr>
+  </table>
+ </div>  
+
+
+
+<!-- <div class="table-wrapper">
+    <div class="corner-header" style="width: calc(100% - 89%);">
+      <table style="  width: 57px;
+      overflow: hidden;">
+        <tr>
+          <th>&nbsp;</th>
+        </tr>
+      </table>
+    </div>
+    <div class="column-headers" id="clscroll-column-headers" style="width: calc(100% - 20%);
+    overflow: hidden;">
+      <table style=width:100%>
+        <tr>
+          <th  *ngFor="let object of lookupResult; let i = index"> {{object.transactionDate}}</th>
+          
+        </tr>
+      </table>
+    </div>
+    <div class="row-headers" id="clscroll-row-headers" style="width: calc(100% - 89%);
+    overflow: hidden;">
+      <table>
+        <tr *ngFor="let object of lookupResult; let i = index">
+          <th>{{object.transactionDate}}</th>
+        </tr>
+       
+      </table>
+    </div>
+    <div class="table-content" id="clscroll-content" style="width: calc(100% - 20%);">
+      <table *ngFor="let object of lookupResult; let i = index">
+          <td>{{object.transactionDate}}</td>
+          <td>{{object.creditDate}}</td>
+          <td>{{object.apn}}</td>
+          <td>{{object.tracerNo}}</td>
+          <td>{{object.installNo}}</td>
+          <td>{{object.paymentStatus}}</td>
+          <td>{{object.reason}}</td>
+          <td>{{object.createdDate}}</td>
+          <td>{{object.taxAmount}}</td>
+          <td>{{object.penaltyAmount}}</td>
+          <td>{{object.interestAmount}}</td>
+          <td>{{object.costAmount}}</td>
+          <td>{{object.paymentFiscalyear}}</td>
+          <td>{{object.taxBillFiscalYear}}</td>
+          <td>{{object.taxType}}</td>
+          <td>{{object.batchNo}}</td>
+          <td>{{object.tellerNo}}</td>
+          <td>{{object.ncrSequenceNo}}</td>
+          <td>{{object.checkNo}}</td>
+          <td>{{object.paymentSource}}</td>
+          <td>{{object.paymentMethod}}</td>
+          <td>{{object.updateBy}}</td>
+    
+          <td>{{object.taxAmount}}</td>
+      </table>
+    </div>
+  </div>
+  
+ -->

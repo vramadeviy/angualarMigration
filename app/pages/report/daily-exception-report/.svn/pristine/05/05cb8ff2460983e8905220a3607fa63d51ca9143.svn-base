@@ -1,0 +1,68 @@
+<div class="daily-exception-report-container">
+  <form #filterReportForm="ngForm">
+    <div class="search-wrapper">
+      <div class="from-date">
+        <label class="col-form-label">From Date</label>
+        <ngb-datepicker-popup [tabIndex]="1" [selectedDateKey]="searchModel['from_date']" controlName="fromDate" [maxDateKey]="startCalenderDate"
+          (clear)="clearNgModelValue()" (notify)="onDateSelected($event, 'from_date')"></ngb-datepicker-popup>
+        <div class="error-msg form-alert" *ngIf="isFromDateValid">From Date must be less than the To date.
+        </div>
+      </div>
+      &nbsp;&nbsp;&nbsp;
+      <div class="to-date">
+        <label class="col-form-label">To Date</label>
+        <ngb-datepicker-popup [tabIndex]="2" [selectedDateKey]="searchModel['to_date']" controlName="toDate" (clear)="clearNgModelValue()"  
+          (notify)="onDateSelected($event, 'to_date')"></ngb-datepicker-popup>
+        <div class="error-msg form-alert" *ngIf="isToDateValid">From Date must be less than or equal to To date
+        </div>
+      </div>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <div class="action-wrapper">
+        <button class="btn btn-primary w-100p p-05" [disabled]="filterReportForm.invalid || isFromDateValid || isToDateValid" (click)="onSubmit()"
+          tabindex="19">Search</button>
+      </div>
+    </div>
+  </form>
+  <div class="search-detail-section">
+    <div class="report-history-wrapper">
+      <fieldset *ngIf="reportHistoryResponse.length;else noData">
+        <legend class="legend-border">Search Reports</legend>
+        <div class="report-history-detail">
+          <div class="pane pane-table-preference">
+            <div class="pane-hScroll">
+              <div class="pane-vHeaderScroll">
+                <table>
+                  <thead class="preference-table-header fixed-order">
+                    <th style="width:100px">Created Date/Time</th>
+                    <th style="width:300px">Report Name</th>
+                  </thead>
+                </table>
+              </div>
+              <div class="pane-vScroll pane-vScroll-static">
+                <table>
+                  <tbody>
+                    <tr *ngFor="let report of reportHistoryResponse">
+                      <td class="handle" style="width:100px">{{report.reportDate}} {{report.reportTime}}</td>
+                      <td class="handle" style="width:300px">
+                        <a href="javaScript:void(0)" (click)="getSelectedReportDetail(report.reportURL)">{{report.reportName}}</a>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </fieldset>
+      <ng-template #noData>
+        <span class="error-wrapper"> {{errorMsg}}</span>
+      </ng-template>
+    </div>
+  </div>
+
+  <div class="report-wrapper" *ngIf="reportHistoryURL">
+    <iframe style="width:100%;height:550px;" *ngIf="reportHistoryURL" [src]="reportHistoryURL"></iframe>
+
+  </div>
+</div>
